@@ -1,16 +1,39 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./LoginRegister.css";
+import { supabase } from "../../lib/supabaseClient";
+import "./LoginRegister.css"
 
 export default function LoginRegister() {
   const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // aqui você faria o login/registro com Supabase
-    // se der certo:
-    navigate("/dashboard"); // redireciona para dashboard
+
+    if (isRegister) {
+      // Cadastro
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        alert(error.message);
+      } else {
+        alert("Conta criada! Faça login.");
+        setIsRegister(false);
+      }
+    } else {
+      // Login
+      const { error, session } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        alert(error.message);
+      } else {
+        navigate("/dashboard");
+      }
+    }
   };
 
   return (
@@ -27,10 +50,26 @@ export default function LoginRegister() {
         <h2>{isRegister ? "Registrar" : "Login"}</h2>
         <form onSubmit={handleSubmit}>
           {isRegister && (
-            <input type="text" placeholder="Nome completo" required />
+            <input
+              type="text"
+              placeholder="Nome completo"
+              required
+            />
           )}
-          <input type="email" placeholder="Email" required />
-          <input type="password" placeholder="Senha" required />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           {isRegister && (
             <input type="password" placeholder="Confirmar senha" required />
           )}
