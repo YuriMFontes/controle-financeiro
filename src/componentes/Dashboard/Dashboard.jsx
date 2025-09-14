@@ -1,6 +1,7 @@
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
+import logo from "../../assets/logo.png"
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -29,7 +30,7 @@ export default function Dashboard() {
         <header className="topbar">
           <div className="profile">
             <img
-              src={`https://ui-avatars.com/api/?name=User&background=2575fc&color=fff`}
+              src={logo}
               alt="perfil"
               className="avatar"
             />
@@ -45,20 +46,16 @@ export default function Dashboard() {
         {/* Cards de métricas */}
         <section className="cards">
           <div className="card">
-            <h3>Usuários</h3>
-            <p>1.245</p>
+            <h3>Adicionar Conta</h3>
+            <p>Clique aqui para adicionar uma conta!</p>
           </div>
           <div className="card">
-            <h3>Projetos</h3>
-            <p>58</p>
+            <h3>Informar Pagamentos</h3>
+            <p>Clique aqui para inforamr pagamento!</p>
           </div>
           <div className="card">
-            <h3>Vendas</h3>
-            <p>R$ 75.300</p>
-          </div>
-          <div className="card">
-            <h3>Taxa de Conversão</h3>
-            <p>12%</p>
+            <h3>Relatorios</h3>
+            <p>Receba relatores em PDF!</p>
           </div>
         </section>
 

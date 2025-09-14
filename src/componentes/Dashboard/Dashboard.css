@@ -2,7 +2,7 @@
   display: flex;
   height: 100vh;
   width: 100vw;
-  background: #f5f7fa;
+  background: #3838389f;
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -54,10 +54,9 @@
 }
 
 /* Topbar */
-/* Topbar */
 .topbar {
   height: 60px;
-  background: linear-gradient(135deg, #7913fd, #a169eb);
+  background: linear-gradient(135deg, #a169eb, #7913fd);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -108,22 +107,26 @@
   padding: 20px;
 }
 .card {
-  background: #fff;
+  background: linear-gradient(135deg, #b687f3, #9650f1);
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   text-align: center;
 }
 .card h3 {
-  font-size: 16px;
-  margin-bottom: 10px;
+  font-size: 25px;
+  margin-bottom: 5px;
+  color: rgb(255, 255, 255);
 }
 .card p {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 14px;
+  color: rgb(255, 255, 255);
+  margin-bottom: 30px;
+  margin-top: 0;
 }
 
 /* Conteúdo */
 .content {
   padding: 20px;
+  color: black;
 }
