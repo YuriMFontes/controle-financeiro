@@ -2,6 +2,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import logo from "../../assets/logo.png";
+import Sidebar from "../SideBar/SideBar";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -11,9 +12,8 @@ export default function Dashboard() {
     navigate("/auth");
   };
 
-  // handlers para os cards
   const handleAddAccount = () => {
-    alert("Abrir modal/adicionar conta");
+    navigate("/add-account");
   };
 
   const handlePayments = () => {
@@ -26,16 +26,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <h2 className="logo">Controle-Financeiro</h2>
-        <nav>
-          <a href="#">📊 Visão Geral</a>
-          <a href="#">📁 Notas Fiscais</a>
-          <a href="#">👥 Usuários</a>
-          <a href="#">⚙️ Configurações</a>
-        </nav>
-      </aside>
+      <Sidebar logo={logo} onLogout={handleLogout} />
 
       {/* Conteúdo principal */}
       <main className="main">
@@ -45,9 +36,6 @@ export default function Dashboard() {
             <img src={logo} alt="perfil" className="avatar" />
             <div className="actions">
               <button className="action-btn">Editar Perfil</button>
-              <button className="action-btn" onClick={handleLogout}>
-                Sair
-              </button>
             </div>
           </div>
         </header>
@@ -56,7 +44,7 @@ export default function Dashboard() {
         <section className="cards">
           <div className="card" onClick={handleAddAccount}>
             <h3>Adicionar Conta</h3>
-            <p>Clique aqui para adicionar uma conta!</p> 
+            <p>Clique aqui para adicionar uma conta!</p>
           </div>
 
           <div className="card" onClick={handlePayments}>
