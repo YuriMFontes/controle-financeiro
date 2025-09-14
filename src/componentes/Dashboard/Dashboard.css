@@ -130,3 +130,44 @@
   padding: 20px;
   color: black;
 }
+
+/* Botões dentro dos cards */
+.card-btn {
+  margin-top: auto;
+  padding: 10px 16px;
+  background: #fff;
+  color: #7913fd;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.card-btn:hover {
+  background: #f0f0f0;
+}
+
+/* Card grande */
+.big-card {
+  margin: 20px;
+  padding: 30px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  flex: 1; /* ocupa o resto do espaço */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.big-card h2 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.big-card p {
+  font-size: 16px;
+  color: #555;
+}
