@@ -25,6 +25,11 @@ export default function AddAccount() {
   // pega usuário logado
   const { data: { user } } = await supabase.auth.getUser();
 
+  // referência do mês (primeiro dia do mês atual)
+  const referenceMonth = new Date();
+  referenceMonth.setDate(1); // sempre dia 1
+  const referenceMonthISO = referenceMonth.toISOString().split("T")[0]; // yyyy-mm-01
+
   // cria a conta
   const { data: accountsData, error: accountError } = await supabase
     .from("accounts")
@@ -35,6 +40,7 @@ export default function AddAccount() {
         description,
         total_value: parseFloat(value),
         parcel_count: parseInt(installments),
+        reference_month: referenceMonthISO, // salva mês de referência
       },
     ])
     .select();
@@ -46,12 +52,15 @@ export default function AddAccount() {
 
   const account = accountsData[0]; // conta recém criada
 
-  // gera as parcelas
+  // gera as parcelas com base no reference_month
   const valorParcela = parseFloat(value) / parseInt(installments);
   const parcelas = [];
 
+  // transforma referenceMonthISO em Date
+  const startDate = new Date(referenceMonthISO);
+
   for (let i = 1; i <= installments; i++) {
-    const dueDate = new Date();
+    const dueDate = new Date(startDate);
     dueDate.setMonth(dueDate.getMonth() + (i - 1));
 
     parcelas.push({
@@ -59,7 +68,7 @@ export default function AddAccount() {
       parcel_number: i,
       due_date: dueDate.toISOString().split("T")[0], // YYYY-MM-DD
       amount: valorParcela,
-      status: "paid",
+      status: "Em Aberto",
     });
   }
 

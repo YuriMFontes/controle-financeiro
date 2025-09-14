@@ -12,3 +12,103 @@
   display: flex;
   flex-direction: column;
 }
+
+.payment {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #333;
+}
+
+.list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 40px;
+  background-color: #f5f6fa;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  overflow-y: auto;
+}
+
+/* Menu seleção do mês */
+.month-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.month-selector label {
+  margin-right: 10px;
+  color: #4b4b6b;
+}
+
+.month-selector input {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Lista de parcelas */
+.list h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #4b4b6b;
+}
+
+.list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.list li {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.list li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.list li strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 8px;
+  color: #2f2f4b;
+}
+
+.list li .remaining {
+  margin-top: 6px;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.list li p,
+.list li span {
+  font-size: 15px;
+  color: #555;
+  margin: 4px 0;
+}
+
+.list li .status-paid {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.list li .status-pending {
+  color: #ff6b6b;
+  font-weight: bold;
+}
