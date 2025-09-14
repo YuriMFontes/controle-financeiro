@@ -4,14 +4,14 @@
   height: 100%;
   background: linear-gradient(135deg, #a169eb, #7913fd);
   color: #fff;
-  padding: 20px;  
+  padding-left: 20px;
   transition: transform 0.3s ease;
 }
 .sidebar h2.logo {
   margin-bottom: 30px;
   font-size: 22px;
 }
-.sidebar nav a {
+.sidebar nav a {  
   display: block;
   color: #ffffff;
   text-decoration: none;
