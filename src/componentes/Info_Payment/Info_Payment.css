@@ -2,8 +2,9 @@
   display: flex;
   height: 100vh;
   width: 100vw;
-  background: #3838389f;
-  font-family: "Segoe UI", sans-serif;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #333;
 }
 
 /* Main */
@@ -13,15 +14,7 @@
   flex-direction: column;
 }
 
-.payment {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  font-family: 'Segoe UI', sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: #333;
-}
-
+/* Lista de parcelas */
 .list {
   flex: 1;
   display: flex;
@@ -33,27 +26,6 @@
   overflow-y: auto;
 }
 
-/* Menu seleção do mês */
-.month-selector {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  font-size: 16px;
-}
-
-.month-selector label {
-  margin-right: 10px;
-  color: #4b4b6b;
-}
-
-.month-selector input {
-  padding: 6px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-}
-
-/* Lista de parcelas */
 .list h2 {
   font-size: 28px;
   font-weight: 600;
@@ -111,4 +83,58 @@
 .list li .status-pending {
   color: #ff6b6b;
   font-weight: bold;
+}
+
+/* Menu seleção do mês */
+.month-selector {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin: 20px 40px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
+  max-width: 380px;
+}
+
+.month-selector label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #fff;
+}
+
+/* Ícone estilo calendário */
+.month-selector label::before {
+  content: "📅";
+  font-size: 18px;
+}
+
+/* Input estilizado */
+.month-selector input {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  background: #fff;
+  color: #4b4b6b;
+  transition: all 0.2s ease-in-out;
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
+}
+
+.month-selector input:hover {
+  background: #9e9e9e;
+}
+
+.month-selector input:focus {
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 2px #667eea, 0 0 0 6px rgba(118, 75, 162, 0.3);
 }

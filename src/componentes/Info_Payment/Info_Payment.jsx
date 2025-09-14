@@ -1,3 +1,4 @@
+// src/componentes/Info_Payment.js
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +16,23 @@ export default function Info_Payment() {
     navigate("/auth");
   };
 
-  // Função para pegar parcelas do mês selecionado
+  const formatDateLocal = (d) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
 
+    // start = primeiro dia do mês (local)
     const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+    // end = primeiro dia do próximo mês (local)
+    const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
+
+    const startStr = formatDateLocal(start);
+    const endStr = formatDateLocal(end); // < endStr
 
     const { data, error } = await supabase
       .from("installments")
@@ -38,10 +50,9 @@ export default function Info_Payment() {
         )
       `)
       .eq("accounts.user_id", user.id)
-      .gte("due_date", start.toISOString().split("T")[0])
-      .lte("due_date", end.toISOString().split("T")[0])
+      .gte("due_date", startStr)
+      .lt("due_date", endStr)
       .order("due_date", { ascending: true });
-
 
     if (error) {
       console.error(error);
@@ -56,8 +67,12 @@ export default function Info_Payment() {
 
   // Handler para mudar mês
   const handleMonthChange = (e) => {
-    setSelectedMonth(new Date(e.target.value + "-01")); // formato yyyy-mm
+    // e.target.value no formato "YYYY-MM"
+    const [y, m] = e.target.value.split("-");
+    setSelectedMonth(new Date(Number(y), Number(m) - 1, 1));
   };
+
+  const monthInputValue = `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`;
 
   return (
     <div className="payment">
@@ -71,7 +86,7 @@ export default function Info_Payment() {
           <label>Selecione o mês: </label>
           <input
             type="month"
-            value={selectedMonth.toISOString().slice(0, 7)}
+            value={monthInputValue}
             onChange={handleMonthChange}
           />
         </div>
@@ -84,19 +99,19 @@ export default function Info_Payment() {
             <ul>
               {installments.map((item) => (
                 <li key={item.id}>
-                  <strong>{item.accounts?.name}</strong>  
+                  <strong>{item.accounts?.name}</strong>
                   <br />
-                  Parcela: {item.parcel_number} / {item.accounts.parcel_count}  
+                  Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
                   <br />
-                  Valor: R$ {item.amount.toFixed(2)}  
+                  Valor: R$ {Number(item.amount).toFixed(2)}
                   <br />
                   Mês:{" "}
                   {new Date(item.due_date).toLocaleDateString("pt-BR", {
                     month: "long",
                     year: "numeric",
-                  })}  
+                  })}
                   <br />
-                  Status: {item.status}  
+                  Status: {item.status}
                   <br />
                   <span className="remaining">
                     {item.accounts.parcel_count - item.parcel_number} parcelas restantes
