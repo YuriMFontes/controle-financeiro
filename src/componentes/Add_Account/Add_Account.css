@@ -1,3 +1,19 @@
+
+.account {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: #3838389f;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .add-account-container {
   max-width: 500px;
   margin: 50px auto;

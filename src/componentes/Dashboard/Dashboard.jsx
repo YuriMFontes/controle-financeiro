@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 import logo from "../../assets/logo.png";
 import Sidebar from "../SideBar/SideBar";
+import Header from "../Header/Header";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -21,25 +22,16 @@ export default function Dashboard() {
   };
 
   const handleReports = () => {
-    alert("Gerar relatórios em PDF");
+    alert("EM CONSTRUÇÃO (Receba relatórios em PDF!)");
   };
 
   return (
     <div className="dashboard">
       <Sidebar onLogout={handleLogout} />
-
+      
       {/* Conteúdo principal */}
       <main className="main">
-        {/* Topbar */}
-        <header className="topbar">
-          <div className="profile">
-            <img src={logo} alt="perfil" className="avatar" />
-            <div className="actions">
-              <button className="action-btn">Editar Perfil</button>
-            </div>
-          </div>
-        </header>
-
+        <Header/>
         {/* Cards de métricas */}
         <section className="cards">
           <div className="card" onClick={handleAddAccount}>
@@ -60,7 +52,7 @@ export default function Dashboard() {
 
         {/* Card maior embaixo */}
         <section className="big-card">
-          <h2>Informações Futuras</h2>
+          <h2>EM CONSTRUÇÃO</h2>
           <p>
             Este espaço será usado para gráficos, relatórios detalhados ou
             qualquer outra informação que você queira exibir.

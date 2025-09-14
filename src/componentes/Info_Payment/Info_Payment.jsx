@@ -2,6 +2,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";                                                                                                      
 import Sidebar from "../SideBar/SideBar";
 import "./Info_Payment.css";    
+import Header from "../Header/Header";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
@@ -25,10 +26,13 @@ export default function Info_Payment() {
 
   return (
     <div className="payment">
-        <Sidebar onLogout={handleLogout} />
-
-      {/* Conteúdo principal */}
-      
-    </div>
+              <Sidebar onLogout={handleLogout} />
+              
+              {/* Conteúdo principal */}
+              <main className="main">
+                <Header/>
+                
+              </main>
+            </div>
   );
 }
