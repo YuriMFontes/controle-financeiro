@@ -66,6 +66,11 @@
   gap: 20px;
   padding: 20px;
 }
+
+.card:hover{
+  background: linear-gradient(135deg, #6f00ff, #3f3b3b);
+}
+
 .card {
   background: linear-gradient(135deg, #b687f3, #9650f1);
   padding: 20px;

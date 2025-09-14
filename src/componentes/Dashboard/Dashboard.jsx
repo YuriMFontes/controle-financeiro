@@ -17,7 +17,7 @@ export default function Dashboard() {
   };
 
   const handlePayments = () => {
-    alert("Abrir formulário de pagamentos");
+    navigate("/info-payment");
   };
 
   const handleReports = () => {
@@ -26,7 +26,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Sidebar logo={logo} onLogout={handleLogout} />
+      <Sidebar onLogout={handleLogout} />
 
       {/* Conteúdo principal */}
       <main className="main">

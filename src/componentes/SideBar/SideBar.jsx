@@ -2,14 +2,18 @@
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.css";
 
-export default function Sidebar({ logo, onLogout }) {
+export default function Sidebar({ onLogout }) {
   const navigate = useNavigate();
+
+  const handleSubmit = async () => {
+    navigate("/dashboard");
+  };
 
   return (
     <aside className="sidebar">
       <h2 className="logo">Controle-Financeiro</h2>
       <nav>
-        <a href="#">📊 Visão Geral</a>
+        <a onClick={handleSubmit} href="#">📊 Visão Geral</a>
         <a href="#">📁 Notas Fiscais</a>
         <a href="#">👥 Usuários</a>
         <a href="#">⚙️ Configurações</a>

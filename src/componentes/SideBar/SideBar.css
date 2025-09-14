@@ -1,6 +1,7 @@
 /* Sidebar */
 .sidebar {
   width: 240px;
+  height: 100vw;
   background: linear-gradient(135deg, #a169eb, #7913fd);
   color: #fff;
   padding: 20px;
