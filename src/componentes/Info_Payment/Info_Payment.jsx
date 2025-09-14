@@ -46,7 +46,8 @@ export default function Info_Payment() {
           id,
           user_id,
           name,
-          parcel_count
+          parcel_count,
+          description
         )
       `)
       .eq("accounts.user_id", user.id)
@@ -101,6 +102,8 @@ export default function Info_Payment() {
                 <li key={item.id}>
                   <strong>{item.accounts?.name}</strong>
                   <br />
+                  <em>{item.accounts?.description}</em> {/* <-- Aqui é o lugar mais natural */}
+                  <br />
                   Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
                   <br />
                   Valor: R$ {Number(item.amount).toFixed(2)}
@@ -119,6 +122,7 @@ export default function Info_Payment() {
                 </li>
               ))}
             </ul>
+
           )}
         </div>
       </main>

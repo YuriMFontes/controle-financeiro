@@ -1,3 +1,4 @@
+
 .app {
   display: flex;
   justify-content: center; 
@@ -7,7 +8,7 @@
   background: linear-gradient(135deg, #a169eb, #7913fd);
 }
 
-.container {
+.container-login {
   display: flex; 
   width: 1200px; 
   height: 600px;

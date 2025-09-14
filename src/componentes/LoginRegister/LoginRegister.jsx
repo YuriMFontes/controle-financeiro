@@ -56,7 +56,7 @@ export default function LoginRegister() {
 
   return (
     <div className="app">
-      <div className="container">
+      <div className="container-login">
         <div className="left-panel">
           <h1>Bem-vindo!</h1>
           <p>{isRegister ? "Já possui conta?" : "Ainda não tem conta?"}</p>

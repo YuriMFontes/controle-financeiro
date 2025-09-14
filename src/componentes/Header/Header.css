@@ -1,7 +1,7 @@
 /* Topbar */
 .topbar {
   height: 60px;
-  background: linear-gradient(135deg, #a169eb, #7913fd);
+  background: linear-gradient(135deg, #a169eb, #9146f3);
   display: flex;
   justify-content: flex-end;
   align-items: center;
