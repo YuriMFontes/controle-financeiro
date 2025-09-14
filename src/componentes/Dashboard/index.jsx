@@ -1,9 +1,9 @@
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import "./Dashboard.css";
+import "./index.css";
 import logo from "../../assets/logo.png";
-import Sidebar from "../SideBar/SideBar";
-import Header from "../Header/Header";
+import Sidebar from "../SideBar";
+import Header from "../Header";
 
 export default function Dashboard() {
   const navigate = useNavigate();

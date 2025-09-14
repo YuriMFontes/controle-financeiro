@@ -1,6 +1,6 @@
 // src/componentes/Sidebar/Sidebar.js
 import { useNavigate } from "react-router-dom";
-import "./Sidebar.css";
+import "./index.css";
 
 export default function Sidebar({ onLogout }) {
   const navigate = useNavigate();
