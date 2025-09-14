@@ -1,0 +1,129 @@
+.dashboard {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background: #f5f7fa;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: linear-gradient(135deg, #a169eb, #7913fd);
+  color: #fff;
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+.sidebar h2.logo {
+  margin-bottom: 30px;
+  font-size: 22px;
+}
+.sidebar nav a {
+  display: block;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.sidebar nav a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar Mobile */
+.sidebar.open {
+  transform: translateX(0);
+}
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    z-index: 1000;
+  }
+}
+
+/* Main */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Topbar */
+/* Topbar */
+.topbar {
+  height: 60px;
+  background: linear-gradient(135deg, #7913fd, #a169eb);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Profile */
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  background: #fff;
+  color: #7913fd;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.action-btn:hover {
+  background: #f0f0f0;
+}
+
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  padding: 20px;
+}
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+.card h3 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+.card p {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+/* Conteúdo */
+.content {
+  padding: 20px;
+}
