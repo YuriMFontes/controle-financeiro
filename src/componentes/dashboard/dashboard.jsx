@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
 import Sidebar from "../side-bar/side-bar";
 import LoginRegister from "../login-register/login-register";
-import Header from "../header/header";
+import Header from "../Header/Header";
 
 export default function Dashboard() {
   const navigate = useNavigate();

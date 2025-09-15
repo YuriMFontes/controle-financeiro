@@ -8,6 +8,10 @@ export default function Header({ onLogout }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
 
+  const handleFiscal = async () => (
+    alert("EM CONSTRUÇÃO")
+  );
+
   useEffect(() => {
     const fetchProfile = async () => {
       const user = supabase.auth.getUser(); // pega o usuário logado
@@ -47,7 +51,7 @@ export default function Header({ onLogout }) {
           <h1 className="bem-vindo">{fullName ? `Olá, ${fullName}` : "Olá!"}</h1>
           <img src={logo} alt="perfil" className="avatar" />
           <div className="actions">
-            <button className="action-btn">Editar Perfil</button>
+            <button onClick={handleFiscal} className="action-btn">Editar Perfil</button>
           </div>
         </div>
       </header>

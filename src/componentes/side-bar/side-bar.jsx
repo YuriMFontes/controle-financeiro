@@ -9,14 +9,18 @@ export default function Sidebar({ onLogout }) {
     navigate("/dashboard");
   };
 
+  const handleFiscal = async () => (
+    alert("EM CONSTRUÇÃO")
+  );
+
   return (
     <aside className="sidebar">
       <h2 className="logo">Controle-Financeiro</h2>
       <nav>
         <a onClick={handleSubmit} href="#">Visão Geral</a>
-        <a href="#">Notas Fiscais</a>
-        <a href="#">Usuários</a>
-        <a href="#">Configurações</a>
+        <a onClick={handleFiscal} href="#">Notas Fiscais</a>
+        <a onClick={handleFiscal} href="#">Investimentos</a>
+        <a onClick={handleFiscal} href="#">Saúde</a>
       </nav>
       <div className="sidebar-actions">
         <button className="action-btn-sidebar" onClick={onLogout}>
