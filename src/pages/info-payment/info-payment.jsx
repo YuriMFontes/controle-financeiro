@@ -4,37 +4,29 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
+import { formatDateLocal, firstDayOfMonth, lastDayOfMonth, formatDateBR } from "../../componentes/date/date";
 import "./info-payment.css";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
   const [installments, setInstallments] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(new Date()); // mês selecionado
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
 
-  // 🔹 função para formatar data em "YYYY-MM-DD"
-  const formatDateLocal = (d) => {
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    return `${yyyy}-${mm}-${dd}`;
-  };
-
-  // 🔹 busca parcelas e contas fixas
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
+    const start = firstDayOfMonth(monthDate);
+    const end = firstDayOfMonth(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
 
     const startStr = formatDateLocal(start);
     const endStr = formatDateLocal(end);
 
-    // parcelas (contas variáveis)
+    // Contas variáveis
     const { data: installmentsData, error: installmentsError } = await supabase
       .from("installments")
       .select(`
@@ -59,7 +51,7 @@ export default function Info_Payment() {
 
     if (installmentsError) console.error(installmentsError);
 
-    // contas fixas
+    // Contas fixas
     const { data: fixedAccounts, error: fixedError } = await supabase
       .from("accounts")
       .select("id, name, description, total_value, account_type")
@@ -68,13 +60,13 @@ export default function Info_Payment() {
 
     if (fixedError) console.error(fixedError);
 
-    // junta parcelas variáveis e fixas em uma lista só
+    // Mescla contas variáveis e fixas
     const merged = [
       ...(installmentsData || []).map((i) => ({ ...i, type: "VARIAVEL" })),
       ...(fixedAccounts || []).map((f) => ({
         id: f.id,
         parcel_number: null,
-        due_date: startStr, // mês selecionado
+        due_date: start, // primeiro dia do mês selecionado
         amount: f.total_value,
         status: "A Pagar",
         accounts: f,
@@ -85,21 +77,16 @@ export default function Info_Payment() {
     setInstallments(merged);
   };
 
-  // busca toda vez que mudar o mês
   useEffect(() => {
     fetchInstallments(selectedMonth);
   }, [selectedMonth]);
 
-  // mudar mês pelo input
   const handleMonthChange = (e) => {
     const [y, m] = e.target.value.split("-");
     setSelectedMonth(new Date(Number(y), Number(m) - 1, 1));
   };
 
-  // valor do input mês
-  const monthInputValue = `${selectedMonth.getFullYear()}-${String(
-    selectedMonth.getMonth() + 1
-  ).padStart(2, "0")}`;
+  const monthInputValue = `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`;
 
   return (
     <div className="payment">
@@ -108,14 +95,9 @@ export default function Info_Payment() {
       <main className="main">
         <Topbar />
 
-        {/* Menu de seleção do mês */}
         <div className="month-selector">
           <label>Selecione o mês: </label>
-          <input
-            type="month"
-            value={monthInputValue}
-            onChange={handleMonthChange}
-          />
+          <input type="month" value={monthInputValue} onChange={handleMonthChange} />
         </div>
 
         <div className="list">
@@ -136,12 +118,7 @@ export default function Info_Payment() {
                       <br />
                       Valor: R$ {Number(item.amount).toFixed(2)}
                       <br />
-                      Vencimento:{" "}
-                      {new Date(item.due_date).toLocaleDateString("pt-BR", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      Vencimento: {formatDateBR(item.due_date)}
                       <br />
                       Status: {item.status}
                     </>
@@ -150,6 +127,8 @@ export default function Info_Payment() {
                       Conta fixa do mês
                       <br />
                       Valor: R$ {Number(item.amount).toFixed(2)}
+                      <br />
+                      Vencimento: {formatDateBR(item.due_date)}
                       <br />
                       Status: {item.status}
                     </>
