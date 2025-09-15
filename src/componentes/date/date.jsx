@@ -3,7 +3,7 @@ export const formatDateLocal = (date) => {
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}`;
+  return `${yyyy}-${mm}`;
 };
 
 export const firstDayOfMonth = (date) => {
@@ -16,7 +16,6 @@ export const lastDayOfMonth = (date) => {
 
 export const formatDateBR = (date) => {
   return new Date(date).toLocaleDateString("pt-BR", {
-    day: "2-digit",
     month: "long",
     year: "numeric",
   });
