@@ -21,7 +21,7 @@
 .left-panel {
   flex: 1; 
   padding: 40px;
-  background: linear-gradient(135deg, #ff512f, #dd2476);
+  background: linear-gradient(135deg, #b890ec, #6f00ff);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -41,10 +41,10 @@
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: #fff;
-  color: #ff512f;
+  background: white;
   font-weight: bold;
   cursor: pointer;
+  color: #6f00ff;
 }
 
 .right-panel {
@@ -57,6 +57,7 @@
 
 .right-panel h2 {
   margin-bottom: 20px;
+  color: black;
 }
 
 .right-panel form {
@@ -77,7 +78,7 @@
   padding: 12px;
   border-radius: 10px;
   border: none;
-  background: linear-gradient(135deg, #ff512f, #dd2476);
+  background: linear-gradient(135deg, #b890ec, #6f00ff);
   color: #fff;
   font-weight: bold;
   cursor: pointer;

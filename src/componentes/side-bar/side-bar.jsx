@@ -13,10 +13,10 @@ export default function Sidebar({ onLogout }) {
     <aside className="sidebar">
       <h2 className="logo">Controle-Financeiro</h2>
       <nav>
-        <a onClick={handleSubmit} href="#">📊 Visão Geral</a>
-        <a href="#">📁 Notas Fiscais</a>
-        <a href="#">👥 Usuários</a>
-        <a href="#">⚙️ Configurações</a>
+        <a onClick={handleSubmit} href="#">Visão Geral</a>
+        <a href="#">Notas Fiscais</a>
+        <a href="#">Usuários</a>
+        <a href="#">Configurações</a>
       </nav>
       <div className="sidebar-actions">
         <button className="action-btn-sidebar" onClick={onLogout}>
