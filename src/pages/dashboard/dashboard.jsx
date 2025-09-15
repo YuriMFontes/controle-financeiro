@@ -2,7 +2,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
 import Sidebar from "../../componentes/side-bar/side-bar"
-import Header from "../../componentes/Header/Header";
+import Topbar from "../../componentes/top-bar/top-bar"
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ export default function Dashboard() {
       
       {/* Conteúdo principal */}
       <main className="main">
-        <Header/>
+        <Topbar/>
         {/* Cards de métricas */}
         <section className="cards">
           <div className="card" onClick={handleAddAccount}>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import Sidebar from "../../componentes/side-bar/side-bar"
-import Header from "../../componentes/Header/Header"
+import Topbar from "../../componentes/top-bar/top-bar"
 import "./add-account.css";
 
 export default function AddAccount() {
@@ -110,7 +110,7 @@ export default function AddAccount() {
       <Sidebar onLogout={handleLogout} />
 
       <div className="main">
-        <Header />
+        <Topbar />
 
         <main className="container">
           <div className="form-container">

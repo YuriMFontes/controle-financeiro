@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar"
-import Header from "../../componentes/Header/Header"
+import Topbar from "../../componentes/top-bar/top-bar"
 import "./info-payment.css";
 
 export default function Info_Payment() {
@@ -80,7 +80,7 @@ export default function Info_Payment() {
       <Sidebar onLogout={handleLogout} />
 
       <main className="main">
-        <Header />
+        <Topbar />
 
         {/* Menu de seleção do mês */}
         <div className="month-selector">

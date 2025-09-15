@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import "./header.css";
+import "./top-bar.css";
 import logo from "../../assets/logo.png";
 
-export default function Header({ onLogout }) {
+export default function Topbar({ onLogout }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
 
