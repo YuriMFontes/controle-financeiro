@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./index.css";
+import "./header.css";
 import logo from "../../assets/logo.png";
 
 export default function Header({ onLogout }) {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import "./index.css";
+import "./login-register.css";
 
 export default function LoginRegister() {
   const [isRegister, setIsRegister] = useState(false);

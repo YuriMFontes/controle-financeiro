@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import Sidebar from "../side-Bar";
-import Header from "../header";
-import "./index.css";
+import Sidebar from "../side-bar/side-bar";
+import Header from "../header/header";
+import "./add-account.css";
 
 export default function AddAccount() {
   const navigate = useNavigate();
