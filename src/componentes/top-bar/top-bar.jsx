@@ -3,18 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import "./top-bar.css";
 import logo from "../../assets/logo.png";
+import Modal from "../modal/Modal"; 
 
 export default function Topbar({ onLogout }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
 
-  const handleFiscal = async () => (
-    alert("EM CONSTRUÇÃO")
-  );
+  const [isFiscalModalOpen, setIsFiscalModalOpen] = useState(false);
+
+  const handleFiscal = () => {
+    setIsFiscalModalOpen(true);
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const user = supabase.auth.getUser(); // pega o usuário logado
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
 
       if (userError) {
@@ -54,6 +56,19 @@ export default function Topbar({ onLogout }) {
             <button onClick={handleFiscal} className="action-btn">Editar Perfil</button>
           </div>
         </div>
+
+        {/* ✅ Modal estilizado */}
+        <Modal
+          isOpen={isFiscalModalOpen}
+          onClose={() => setIsFiscalModalOpen(false)}
+          title="Aviso"
+        >
+          <p>🚧 EM CONSTRUÇÃO 🚧</p>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
+            <button onClick={() => setIsFiscalModalOpen(false)}>Fechar</button>
+          </div>
+        </Modal>
+
       </header>
     </aside>
   );

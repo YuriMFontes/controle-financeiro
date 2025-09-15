@@ -85,7 +85,7 @@ export default function AddAccount() {
     const parcelas = [];
 
     const [year, month] = referenceMonthISO.split("-").map(Number);
-    const startDate = new Date(year, month - 1, 1);
+    const startDate = new Date(year, month, 1);
 
     for (let i = 1; i <= installmentsCount; i++) {
       const dueDate = new Date(startDate);
