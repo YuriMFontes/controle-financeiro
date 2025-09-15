@@ -30,25 +30,23 @@ export default function Info_Payment() {
     setSelectedItem(null);
   };
 
-const handleMarkPaid = async (item) => {
-  const { error } = await supabase
-    .from("installments")
-    .update({ status: "Pago", paid_at: new Date().toISOString() })
-    .eq("id", item.id);
+  const handleMarkPaid = async (item) => {
+    const { error } = await supabase
+      .from("installments")
+      .update({ status: "Pago", paid_at: new Date().toISOString() })
+      .eq("id", item.id);
 
-  if (error) {
-    alert("Erro ao marcar pagamento: " + error.message);
-  } else {
-    alert("Parcela marcada como paga!");
-    // Atualiza a lista sem precisar recarregar
-    setInstallments((prev) =>
-      prev.map((inst) =>
-        inst.id === item.id ? { ...inst, status: "Pago", paid_at: new Date() } : inst
-      )
-    );
-  }
-};
-
+    if (error) {
+      alert("Erro ao marcar pagamento: " + error.message);
+    } else {
+      alert("Parcela marcada como paga!");
+      setInstallments((prev) =>
+        prev.map((inst) =>
+          inst.id === item.id ? { ...inst, status: "Pago", paid_at: new Date() } : inst
+        )
+      );
+    }
+  };
 
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -153,7 +151,10 @@ const handleMarkPaid = async (item) => {
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
                       <br />
-                      Status: <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>{item.status}</span>
+                      Status:{" "}
+                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
+                        {item.status}
+                      </span>
                     </>
                   ) : (
                     <>
@@ -163,10 +164,13 @@ const handleMarkPaid = async (item) => {
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
                       <br />
-                      Status: <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>{item.status}</span>
+                      Status:{" "}
+                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
+                        {item.status}
+                      </span>
                     </>
                   )}
-                  
+
                   <div className="card-buttons">
                     <button onClick={() => handleEdit(item)}>Editar</button>
                     {item.status !== "Pago" && (
@@ -179,29 +183,48 @@ const handleMarkPaid = async (item) => {
           )}
         </div>
 
-          {isModalOpen && selectedItem && (
+        {isModalOpen && selectedItem && (
           <div className="modal-overlay">
             <div className="modal-content">
               <h3>Editar Conta</h3>
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  const { error } = await supabase
-                    .from("installments")
-                    .update({
-                      amount: selectedItem.amount,
-                      status: selectedItem.status,
-                    })
-                    .eq("id", selectedItem.id);
+                  if (selectedItem.type === "VARIAVEL") {
+                    const { error } = await supabase
+                      .from("installments")
+                      .update({
+                        amount: selectedItem.amount,
+                        status: selectedItem.status,
+                      })
+                      .eq("id", selectedItem.id);
 
-                  if (error) {
-                    alert("Erro ao atualizar: " + error.message);
+                    if (error) {
+                      alert("Erro ao atualizar: " + error.message);
+                    } else {
+                      alert("Atualizado com sucesso!");
+                      setInstallments((prev) =>
+                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
+                      );
+                      handleCloseModal();
+                    }
                   } else {
-                    alert("Atualizado com sucesso!");
-                    setInstallments((prev) =>
-                      prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                    );
-                    handleCloseModal();
+                    const { error } = await supabase
+                      .from("accounts")
+                      .update({
+                        total_value: selectedItem.amount,
+                      })
+                      .eq("id", selectedItem.id);
+
+                    if (error) {
+                      alert("Erro ao atualizar conta fixa: " + error.message);
+                    } else {
+                      alert("Conta fixa atualizada!");
+                      setInstallments((prev) =>
+                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
+                      );
+                      handleCloseModal();
+                    }
                   }
                 }}
               >
@@ -223,6 +246,7 @@ const handleMarkPaid = async (item) => {
                     onChange={(e) =>
                       setSelectedItem({ ...selectedItem, status: e.target.value })
                     }
+                    disabled={selectedItem.type === "FIXA"} // fixa não tem status
                   >
                     <option value="Em Aberto">A Pagar</option>
                     <option value="Pago">Pago</option>
@@ -234,13 +258,21 @@ const handleMarkPaid = async (item) => {
                   <button
                     type="button"
                     onClick={async () => {
-                      if (
-                        window.confirm("Tem certeza que deseja excluir essa conta?")
-                      ) {
-                        const { error } = await supabase
-                          .from("installments")
-                          .delete()
-                          .eq("id", selectedItem.id);
+                      if (window.confirm("Tem certeza que deseja excluir essa conta?")) {
+                        let error;
+                        if (selectedItem.type === "VARIAVEL") {
+                          const { error: err } = await supabase
+                            .from("installments")
+                            .delete()
+                            .eq("id", selectedItem.id);
+                          error = err;
+                        } else if (selectedItem.type === "FIXA") {
+                          const { error: err } = await supabase
+                            .from("accounts")
+                            .delete()
+                            .eq("id", selectedItem.id);
+                          error = err;
+                        }
 
                         if (error) {
                           alert("Erro ao excluir: " + error.message);
@@ -254,10 +286,10 @@ const handleMarkPaid = async (item) => {
                       }
                     }}
                   >
-                    Excluir
+                  Excluir
                   </button>
                   <button type="button" onClick={handleCloseModal}>
-                    Cancelar
+                  Cancelar
                   </button>
                 </div>
               </form>
