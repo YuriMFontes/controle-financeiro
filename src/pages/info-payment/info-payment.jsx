@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../side-bar/side-bar";
-import Header from "../header/header";
+import Sidebar from "../../componentes/side-bar/side-bar"
+import Header from "../../componentes/Header/Header"
 import "./info-payment.css";
 
 export default function Info_Payment() {

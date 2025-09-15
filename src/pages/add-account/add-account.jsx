@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import Sidebar from "../side-bar/side-bar";
-import Header from "../header/header";
+import Sidebar from "../../componentes/side-bar/side-bar"
+import Header from "../../componentes/Header/Header"
 import "./add-account.css";
 
 export default function AddAccount() {
