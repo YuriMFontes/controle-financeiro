@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import Sidebar from "../../componentes/side-bar/side-bar"
-import Topbar from "../../componentes/top-bar/top-bar"
+import Sidebar from "../../componentes/side-bar/side-bar";
+import Topbar from "../../componentes/top-bar/top-bar";
 import "./add-account.css";
 
 export default function AddAccount() {
@@ -19,9 +19,7 @@ export default function AddAccount() {
     navigate("/auth");
   };
 
-  const handleAccountFixed = async () => (
-    navigate("/add-account-fixed")
-  )
+  const handleAccountFixed = () => navigate("/add-account-fixed");
 
   const formatDateLocal = (d) => {
     const yyyy = d.getFullYear();
@@ -33,7 +31,6 @@ export default function AddAccount() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // validações básicas
     const installmentsCount = parseInt(installments, 10);
     if (!installmentsCount || installmentsCount <= 0) {
       alert("Informe um número de parcelas válido.");
@@ -45,15 +42,13 @@ export default function AddAccount() {
       return;
     }
 
-    // pega usuário logado
     const { data: { user } } = await supabase.auth.getUser();
 
-    // referência do mês (primeiro dia do mês atual) - local
     const referenceMonth = new Date();
-    referenceMonth.setDate(1); // sempre dia 1
-    const referenceMonthISO = formatDateLocal(referenceMonth); // yyyy-mm-01
+    referenceMonth.setDate(1);
+    const referenceMonthISO = formatDateLocal(referenceMonth);
 
-    // cria a conta
+    // create account with parcel_count and account_type
     const { data: accountsData, error: accountError } = await supabase
       .from("accounts")
       .insert([
@@ -63,7 +58,8 @@ export default function AddAccount() {
           description,
           total_value: totalValue,
           parcel_count: installmentsCount,
-          reference_month: referenceMonthISO, // salva mês de referência (date ou text dependendo do schema)
+          reference_month: referenceMonthISO,
+          account_type: "VARIAVEL",
         },
       ])
       .select();
@@ -73,13 +69,10 @@ export default function AddAccount() {
       return;
     }
 
-    const account = accountsData[0]; // conta recém criada
-
-    // gera as parcelas com base no reference_month (sem problemas de fuso)
+    const account = accountsData[0];
     const valorParcela = totalValue / installmentsCount;
     const parcelas = [];
 
-    // cria startDate local com ano e mês garantido
     const [year, month] = referenceMonthISO.split("-").map(Number);
     const startDate = new Date(year, month - 1, 1);
 
@@ -90,13 +83,12 @@ export default function AddAccount() {
       parcelas.push({
         account_id: account.id,
         parcel_number: i,
-        due_date: formatDateLocal(dueDate), // YYYY-MM-DD em fuso local
-        amount: parseFloat(valorParcela.toFixed(2)), // arredonda apenas para consistência
+        due_date: formatDateLocal(dueDate),
+        amount: parseFloat(valorParcela.toFixed(2)),
         status: "Em Aberto",
       });
     }
 
-    // salva parcelas
     const { error: installmentsError } = await supabase
       .from("installments")
       .insert(parcelas);
@@ -112,40 +104,17 @@ export default function AddAccount() {
   return (
     <div className="account">
       <Sidebar onLogout={handleLogout} />
-
       <div className="main">
         <Topbar />
-
         <main className="container">
           <div className="form-container">
-            <button onClick={handleAccountFixed}> Adicionar Conta Fixa </button>
+            <button onClick={handleAccountFixed}>Adicionar Conta Fixa</button>
             <h2>Adicionar Conta Variável</h2>
             <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                placeholder="Nome da conta"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <input
-                type="number"
-                placeholder="Valor"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Descrição"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-              <input
-                type="number"
-                placeholder="Informe de parcelas"
-                value={installments}
-                onChange={(e) => setInstallments(e.target.value)}
-              />
+              <input type="text" placeholder="Nome da conta" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input type="number" placeholder="Valor" value={value} onChange={(e) => setValue(e.target.value)} required />
+              <textarea placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} />
+              <input type="number" placeholder="Informe de parcelas" value={installments} onChange={(e) => setInstallments(e.target.value)} />
               <button type="submit">Adicionar Conta</button>
             </form>
           </div>

@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../../componentes/side-bar/side-bar"
-import Topbar from "../../componentes/top-bar/top-bar"
+import Sidebar from "../../componentes/side-bar/side-bar";
+import Topbar from "../../componentes/top-bar/top-bar";
 import "./info-payment.css";
 
 export default function Info_Payment() {
@@ -16,6 +16,7 @@ export default function Info_Payment() {
     navigate("/auth");
   };
 
+  // 🔹 função para formatar data em "YYYY-MM-DD"
   const formatDateLocal = (d) => {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -23,18 +24,18 @@ export default function Info_Payment() {
     return `${yyyy}-${mm}-${dd}`;
   };
 
+  // 🔹 busca parcelas e contas fixas
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    // start = primeiro dia do mês (local)
     const start = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
-    // end = primeiro dia do próximo mês (local)
     const end = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1);
 
     const startStr = formatDateLocal(start);
-    const endStr = formatDateLocal(end); // < endStr
+    const endStr = formatDateLocal(end);
 
-    const { data, error } = await supabase
+    // parcelas (contas variáveis)
+    const { data: installmentsData, error: installmentsError } = await supabase
       .from("installments")
       .select(`
         id,
@@ -47,7 +48,8 @@ export default function Info_Payment() {
           user_id,
           name,
           parcel_count,
-          description
+          description,
+          account_type
         )
       `)
       .eq("accounts.user_id", user.id)
@@ -55,25 +57,49 @@ export default function Info_Payment() {
       .lt("due_date", endStr)
       .order("due_date", { ascending: true });
 
-    if (error) {
-      console.error(error);
-    } else {
-      setInstallments(data);
-    }
+    if (installmentsError) console.error(installmentsError);
+
+    // contas fixas
+    const { data: fixedAccounts, error: fixedError } = await supabase
+      .from("accounts")
+      .select("id, name, description, total_value, account_type")
+      .eq("user_id", user.id)
+      .eq("account_type", "FIXA");
+
+    if (fixedError) console.error(fixedError);
+
+    // junta parcelas variáveis e fixas em uma lista só
+    const merged = [
+      ...(installmentsData || []).map((i) => ({ ...i, type: "VARIAVEL" })),
+      ...(fixedAccounts || []).map((f) => ({
+        id: f.id,
+        parcel_number: null,
+        due_date: startStr, // mês selecionado
+        amount: f.total_value,
+        status: "A Pagar",
+        accounts: f,
+        type: "FIXA",
+      })),
+    ];
+
+    setInstallments(merged);
   };
 
+  // busca toda vez que mudar o mês
   useEffect(() => {
     fetchInstallments(selectedMonth);
   }, [selectedMonth]);
 
-  // Handler para mudar mês
+  // mudar mês pelo input
   const handleMonthChange = (e) => {
-    // e.target.value no formato "YYYY-MM"
     const [y, m] = e.target.value.split("-");
     setSelectedMonth(new Date(Number(y), Number(m) - 1, 1));
   };
 
-  const monthInputValue = `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`;
+  // valor do input mês
+  const monthInputValue = `${selectedMonth.getFullYear()}-${String(
+    selectedMonth.getMonth() + 1
+  ).padStart(2, "0")}`;
 
   return (
     <div className="payment">
@@ -93,7 +119,7 @@ export default function Info_Payment() {
         </div>
 
         <div className="list">
-          <h2>Pagamentos Do Mês:</h2>
+          <h2>Pagamentos do Mês:</h2>
           {installments.length === 0 ? (
             <p>Nenhuma parcela para este mês.</p>
           ) : (
@@ -102,27 +128,35 @@ export default function Info_Payment() {
                 <li key={item.id}>
                   <strong>{item.accounts?.name}</strong>
                   <br />
-                  <em>{item.accounts?.description}</em> {/* <-- Aqui é o lugar mais natural */}
+                  <em>{item.accounts?.description}</em>
                   <br />
-                  Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
-                  <br />
-                  Valor: R$ {Number(item.amount).toFixed(2)}
-                  <br />
-                  Mês:{" "}
-                  {new Date(item.due_date).toLocaleDateString("pt-BR", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                  <br />
-                  Status: {item.status}
-                  <br />
-                  <span className="remaining">
-                    {item.accounts.parcel_count - item.parcel_number} parcelas restantes
-                  </span>
+                  {item.type === "VARIAVEL" ? (
+                    <>
+                      Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
+                      <br />
+                      Valor: R$ {Number(item.amount).toFixed(2)}
+                      <br />
+                      Vencimento:{" "}
+                      {new Date(item.due_date).toLocaleDateString("pt-BR", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                      <br />
+                      Status: {item.status}
+                    </>
+                  ) : (
+                    <>
+                      Conta fixa do mês
+                      <br />
+                      Valor: R$ {Number(item.amount).toFixed(2)}
+                      <br />
+                      Status: {item.status}
+                    </>
+                  )}
                 </li>
               ))}
             </ul>
-
           )}
         </div>
       </main>

@@ -1,9 +1,9 @@
-// src/componentes/AddAccount/AddAccount.js
+// src/componentes/AddAccount/AddAccountFixed.js
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
-import Sidebar from "../../componentes/side-bar/side-bar"
-import Topbar from "../../componentes/top-bar/top-bar"
+import Sidebar from "../../componentes/side-bar/side-bar";
+import Topbar from "../../componentes/top-bar/top-bar";
 import "./add-account-fixed.css";
 
 export default function AddAccountFixed() {
@@ -17,9 +17,8 @@ export default function AddAccountFixed() {
     await supabase.auth.signOut();
     navigate("/auth");
   };
-   const handleAccount = async () => (
-    navigate("/add-account")
-  )
+
+  const handleAccount = () => navigate("/add-account");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,11 +29,9 @@ export default function AddAccountFixed() {
       return;
     }
 
-    // pega usuário logado
     const { data: { user } } = await supabase.auth.getUser();
 
-
-    // cria a conta
+    // insert account as FIXA, parcel_count = 0
     const { data: accountsData, error: accountError } = await supabase
       .from("accounts")
       .insert([
@@ -43,6 +40,8 @@ export default function AddAccountFixed() {
           name,
           description,
           total_value: totalValue,
+          parcel_count: 0,
+          account_type: "FIXA",
         },
       ])
       .select();
@@ -52,49 +51,23 @@ export default function AddAccountFixed() {
       return;
     }
 
-    const account = accountsData[0]; // conta recém criada
-
-
-      parcelas.push({
-        account_id: account.id,
-        parcel_number: i,
-        due_date: formatDateLocal(dueDate), // YYYY-MM-DD em fuso local
-        amount: parseFloat(valorParcela.toFixed(2)), // arredonda apenas para consistência
-        status: "Em Aberto",
-      });
-    }
+    alert("Conta fixa criada com sucesso!");
+    navigate("/dashboard");
+  };
 
   return (
     <div className="account">
       <Sidebar onLogout={handleLogout} />
-
       <div className="main">
         <Topbar />
-
         <main className="container">
           <div className="form-container">
-            <button onClick={handleAccount}> Adicionar Conta Variável </button>
+            <button onClick={handleAccount}>Adicionar Conta Variável</button>
             <h2>Adicionar Conta Fixa</h2>
             <form onSubmit={handleSubmit}>
-              <input
-                type="text"
-                placeholder="Nome da conta"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
-              <input
-                type="number"
-                placeholder="Valor"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                required
-              />
-              <textarea
-                placeholder="Descrição"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
+              <input type="text" placeholder="Nome da conta" value={name} onChange={(e) => setName(e.target.value)} required />
+              <input type="number" placeholder="Valor" value={value} onChange={(e) => setValue(e.target.value)} required />
+              <textarea placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} />
               <button type="submit">Adicionar Conta</button>
             </form>
           </div>
