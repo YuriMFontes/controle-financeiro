@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import LoginRegister from "./componentes/LoginRegister";
+import LoginRegister from "./componentes/login-register";
 import Dashboard from "./componentes/Dashboard";
-import PrivateRoute from "./componentes/PrivateRoute";
-import AddAccount from "./componentes/Add_Account";
-import Info_Payment from "./componentes/Info_Payment";
+import PrivateRoute from "./componentes/add-account";
+import AddAccount from "./componentes/add-account";
+import Info_Payment from "./componentes/info-payment";
 
 export default function App() {
   return (
