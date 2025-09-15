@@ -44,9 +44,20 @@ export default function AddAccount() {
 
     const { data: { user } } = await supabase.auth.getUser();
 
-    const referenceMonth = new Date();
-    referenceMonth.setDate(1);
-    const referenceMonthISO = formatDateLocal(referenceMonth);
+    // regra de corte no dia 20
+  const today = new Date();
+  let referenceMonth;
+
+  if (today.getDate() > 20) {
+    // passa pro próximo mês
+    referenceMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  } else {
+    // fica no mês atual
+    referenceMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  }
+
+  const referenceMonthISO = formatDateLocal(referenceMonth);
+
 
     // create account with parcel_count and account_type
     const { data: accountsData, error: accountError } = await supabase
