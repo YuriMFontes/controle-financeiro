@@ -19,7 +19,7 @@ export default function Sidebar({ onLogout }) {
     <aside className="sidebar">
       <h2 className="logo">Controle-Financeiro</h2>
       <nav>
-        <a onClick={() => setOpen(true)} href="#">Visão Geral</a>
+        <a onClick={handleSubmit} href="#">Visão Geral</a>
         <a onClick={() => setOpen(true)} href="#">Notas Fiscais</a>
         <a onClick={() => setOpen(true)} href="#">Investimentos</a>
         <a onClick={() => setOpen(true)} href="#">Saúde</a>

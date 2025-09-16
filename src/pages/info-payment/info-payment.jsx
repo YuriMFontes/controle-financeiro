@@ -4,7 +4,7 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
-import { formatDateLocal, firstDayOfMonth, lastDayOfMonth, formatDateBR } from "../../componentes/date/date";
+import { formatDateLocal, firstDayOfMonth, formatDateBR } from "../../componentes/date/date";
 import "./info-payment.css";
 import MonthSelector from "../../componentes/monthselector/monthselector";
 
@@ -98,7 +98,7 @@ export default function Info_Payment() {
       ...(fixedAccounts || []).map((f) => ({
         id: f.id,
         parcel_number: null,
-        due_date: start, 
+        due_date: new Date(monthDate),
         amount: f.total_value,
         status: "Em Aberto",
         accounts: f,
