@@ -10,7 +10,6 @@ export default function Topbar({ onLogout }) {
   const [fullName, setFullName] = useState("");
 
   const [isFiscalModalOpen, setIsFiscalModalOpen] = useState(false);
-
   const handleFiscal = () => {
     setIsFiscalModalOpen(true);
   };
@@ -57,18 +56,11 @@ export default function Topbar({ onLogout }) {
           </div>
         </div>
 
-        {/* ✅ Modal estilizado */}
         <Modal
           isOpen={isFiscalModalOpen}
           onClose={() => setIsFiscalModalOpen(false)}
           title="Aviso"
-        >
-          <p>🚧 EM CONSTRUÇÃO 🚧</p>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
-            <button onClick={() => setIsFiscalModalOpen(false)}>Fechar</button>
-          </div>
-        </Modal>
-
+        />
       </header>
     </aside>
   );

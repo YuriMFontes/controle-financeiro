@@ -1,17 +1,23 @@
 // src/componentes/Sidebar/Sidebar.js
 import { useNavigate } from "react-router-dom";
 import "./side-bar.css";
+import Modal from "../modal/Modal";
+import { useState } from "react";
 
 export default function Sidebar({ onLogout }) {
   const navigate = useNavigate();
+  
+  const [isFiscalModalOpen, setIsFiscalModalOpen] = useState(false);
+  const handleFiscal = () => {
+    setIsFiscalModalOpen(true);
+  };
 
+  
   const handleSubmit = async () => {
     navigate("/dashboard");
   };
 
-  const handleFiscal = async () => (
-    alert("EM CONSTRUÇÃO")
-  );
+
 
   return (
     <aside className="sidebar">
@@ -27,6 +33,11 @@ export default function Sidebar({ onLogout }) {
           Sair
         </button>
       </div>
+      <Modal
+          isOpen={isFiscalModalOpen}
+          onClose={() => setIsFiscalModalOpen(false)}
+          title="Aviso"
+        />
     </aside>
   );
 }

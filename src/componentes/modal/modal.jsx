@@ -1,7 +1,7 @@
 import React from "react";
 import "./Modal.css";
 
-const Modal = ({ isOpen, onClose, title, children }) => {
+const Modal = ({ isOpen, onClose, title }) => {
   if (!isOpen) return null;
 
   return (
@@ -16,7 +16,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             ✕
           </button>
         </div>
-        <div className="modal-body">{children}</div>
+
+        <div className="modal-body">
+          <p>🚧 EM CONSTRUÇÃO 🚧</p>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
+            <button onClick={onClose}>Fechar</button>
+          </div>
+        </div>
       </div>
     </div>
   );

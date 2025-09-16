@@ -6,11 +6,13 @@ import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
 import { formatDateLocal, firstDayOfMonth, lastDayOfMonth, formatDateBR } from "../../componentes/date/date";
 import "./info-payment.css";
+import MonthSelector from "../../componentes/monthselector/monthselector";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
   const [installments, setInstallments] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -39,7 +41,6 @@ export default function Info_Payment() {
     if (error) {
       alert("Erro ao marcar pagamento: " + error.message);
     } else {
-      alert("Parcela marcada como paga!");
       setInstallments((prev) =>
         prev.map((inst) =>
           inst.id === item.id ? { ...inst, status: "Pago", paid_at: new Date() } : inst
@@ -97,7 +98,7 @@ export default function Info_Payment() {
       ...(fixedAccounts || []).map((f) => ({
         id: f.id,
         parcel_number: null,
-        due_date: start, // primeiro dia do mês selecionado
+        due_date: start, 
         amount: f.total_value,
         status: "Em Aberto",
         accounts: f,
@@ -112,13 +113,6 @@ export default function Info_Payment() {
     fetchInstallments(selectedMonth);
   }, [selectedMonth]);
 
-  const handleMonthChange = (e) => {
-    const [y, m] = e.target.value.split("-");
-    setSelectedMonth(new Date(Number(y), Number(m) - 1, 1));
-  };
-
-  const monthInputValue = `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`;
-
   return (
     <div className="payment">
       <Sidebar onLogout={handleLogout} />
@@ -126,10 +120,10 @@ export default function Info_Payment() {
       <main className="main">
         <Topbar />
 
-        <div className="month-selector">
-          <label>Selecione o mês: </label>
-          <input type="month" value={monthInputValue} onChange={handleMonthChange} />
-        </div>
+        <MonthSelector
+          selectedMonth={selectedMonth}
+          onChange={setSelectedMonth}
+        />
 
         <div className="list">
           <h2>Pagamentos do Mês:</h2>
@@ -202,7 +196,6 @@ export default function Info_Payment() {
                     if (error) {
                       alert("Erro ao atualizar: " + error.message);
                     } else {
-                      alert("Atualizado com sucesso!");
                       setInstallments((prev) =>
                         prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
                       );
@@ -219,7 +212,6 @@ export default function Info_Payment() {
                     if (error) {
                       alert("Erro ao atualizar conta fixa: " + error.message);
                     } else {
-                      alert("Conta fixa atualizada!");
                       setInstallments((prev) =>
                         prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
                       );
@@ -277,7 +269,6 @@ export default function Info_Payment() {
                         if (error) {
                           alert("Erro ao excluir: " + error.message);
                         } else {
-                          alert("Excluído!");
                           setInstallments((prev) =>
                             prev.filter((i) => i.id !== selectedItem.id)
                           );

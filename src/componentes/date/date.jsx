@@ -7,7 +7,7 @@ export const formatDateLocal = (date) => {
 };
 
 export const firstDayOfMonth = (date) => {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+  return new Date(date.getFullYear(), date.getMonth() + 1, 1);
 };
 
 export const lastDayOfMonth = (date) => {
