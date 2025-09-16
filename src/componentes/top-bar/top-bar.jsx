@@ -3,16 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import "./top-bar.css";
 import logo from "../../assets/logo.png";
-import Modal from "../modal/Modal"; 
+import EditProfileModal from "../caixa/edit-profile-modal";
 
 export default function Topbar({ onLogout }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
+  const [userId, setUserId] = useState(null);
 
-  const [isFiscalModalOpen, setIsFiscalModalOpen] = useState(false);
-  const handleFiscal = () => {
-    setIsFiscalModalOpen(true);
-  };
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const handleEditProfile = () => setIsEditModalOpen(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -24,6 +23,8 @@ export default function Topbar({ onLogout }) {
       }
 
       if (currentUser) {
+        setUserId(currentUser.id);
+
         const { data, error } = await supabase
           .from("profiles")
           .select("full_name")
@@ -52,15 +53,17 @@ export default function Topbar({ onLogout }) {
           <h1 className="bem-vindo">{fullName ? `Olá, ${fullName}` : "Olá!"}</h1>
           <img src={logo} alt="perfil" className="avatar" />
           <div className="actions">
-            <button onClick={handleFiscal} className="action-btn">Editar Perfil</button>
+            <button onClick={handleEditProfile} className="action-btn">Editar Perfil</button>
           </div>
         </div>
 
-        <Modal
-          isOpen={isFiscalModalOpen}
-          onClose={() => setIsFiscalModalOpen(false)}
-          title="Aviso"
+        <EditProfileModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          userId={userId}
+          onProfileUpdated={setFullName}
         />
+
       </header>
     </aside>
   );
