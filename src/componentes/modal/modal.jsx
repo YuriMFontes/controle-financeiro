@@ -1,28 +1,23 @@
 import React from "react";
-import "./Modal.css";
+import "./modal.css";
 
-const Modal = ({ isOpen, onClose, title }) => {
+const Modal = ({ isOpen, onClose, title, children, size = "large" }) => {
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()} 
+        className={`modal-content ${size}`}
+        onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">
-          <h2>{title}</h2>
+          {title && <h2>{title}</h2>}
           <button className="modal-close" onClick={onClose}>
             ✕
           </button>
         </div>
 
-        <div className="modal-body">
-          <p>🚧 EM CONSTRUÇÃO 🚧</p>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "15px" }}>
-            <button onClick={onClose}>Fechar</button>
-          </div>
-        </div>
+        <div className="modal-body">{children}</div>
       </div>
     </div>
   );

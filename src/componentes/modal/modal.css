@@ -11,16 +11,32 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* Conteúdo do modal */
+/* Conteúdo do modal base */
 .modal-content {
   background: #fff;
   border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
   padding: 20px;
   position: relative;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+/* Tamanhos de modal */
+.modal-content.small {
+  width: 400px;
+  max-width: 90%;
+}
+
+.modal-content.medium {
+  width: 700px;
+  max-width: 95%;
+}
+
+.modal-content.large {
+  width: 90%;
+  max-width: 1200px;
 }
 
 /* Cabeçalho */
@@ -41,7 +57,7 @@
 .modal-close {
   background: none;
   border: none;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   cursor: pointer;
   color: #666;
   transition: color 0.2s ease;
@@ -60,21 +76,11 @@
 
 /* Animações */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
