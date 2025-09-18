@@ -21,9 +21,6 @@ export default function Sidebar({ onLogout, open, onClose, fullName }) {
         </button>
       </div>
 
-      {/* Nome do usuário no mobile */}
-      {fullName && <p className="user-name-mobile">{fullName}</p>}
-
       <nav>
         <a onClick={handleSubmit} href="#">
           Visão Geral

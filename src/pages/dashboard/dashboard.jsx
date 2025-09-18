@@ -32,7 +32,6 @@ export default function Dashboard() {
         onLogout={handleLogout}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
-        fullName={"Usuário"} // <- aqui você pode passar o fullName real
       />
 
       {/* Conteúdo principal */}

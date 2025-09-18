@@ -25,7 +25,7 @@
 }
 @media (min-width: 769px) {
   .menu-btn {
-    display: none; /* só aparece no mobile */
+    display: none; 
   }
 }
 
