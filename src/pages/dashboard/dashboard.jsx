@@ -1,11 +1,13 @@
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
-import Sidebar from "../../componentes/side-bar/side-bar"
-import Topbar from "../../componentes/top-bar/top-bar"
+import Sidebar from "../../componentes/side-bar/side-bar";
+import Topbar from "../../componentes/top-bar/top-bar";
+import { useState } from "react";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -26,12 +28,21 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      <Sidebar onLogout={handleLogout} />
-      
+      <Sidebar
+        onLogout={handleLogout}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        fullName={"Usuário"} // <- aqui você pode passar o fullName real
+      />
+
       {/* Conteúdo principal */}
       <main className="main">
-        <Topbar/>
-        {/* Cards de métricas */}
+        <Topbar
+          onLogout={handleLogout}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
+
+        {/* Cards */}
         <section className="cards">
           <div className="card" onClick={handleAddAccount}>
             <h3>Adicionar Conta</h3>

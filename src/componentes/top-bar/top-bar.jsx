@@ -5,7 +5,7 @@ import "./top-bar.css";
 import logo from "../../assets/logo.png";
 import EditProfileModal from "../caixa/edit-profile-modal";
 
-export default function Topbar({ onLogout }) {
+export default function Topbar({ onLogout, onToggleSidebar }) {
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [userId, setUserId] = useState(null);
@@ -15,7 +15,10 @@ export default function Topbar({ onLogout }) {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      const {
+        data: { user: currentUser },
+        error: userError,
+      } = await supabase.auth.getUser();
 
       if (userError) {
         console.error("Erro ao pegar usuário:", userError.message);
@@ -42,18 +45,23 @@ export default function Topbar({ onLogout }) {
     fetchProfile();
   }, []);
 
-  const handleDashboard = () => {
-    navigate("/dashboard");
-  };
-
   return (
     <aside className="Header">
       <header className="topbar">
+        {/* Botão de menu mobile */}
+        <button className="menu-btn" onClick={onToggleSidebar}>
+          ☰
+        </button>
+
         <div className="profile">
-          <h1 className="bem-vindo">{fullName ? `Olá, ${fullName}` : "Olá!"}</h1>
+          <h1 className="bem-vindo desktop-only">
+            {fullName ? `Olá, ${fullName}` : "Olá!"}
+          </h1>
           <img src={logo} alt="perfil" className="avatar" />
-          <div className="actions">
-            <button onClick={handleEditProfile} className="action-btn">Editar Perfil</button>
+          <div className="actions desktop-only">
+            <button onClick={handleEditProfile} className="action-btn">
+              Editar Perfil
+            </button>
           </div>
         </div>
 
@@ -63,7 +71,6 @@ export default function Topbar({ onLogout }) {
           userId={userId}
           onProfileUpdated={setFullName}
         />
-
       </header>
     </aside>
   );

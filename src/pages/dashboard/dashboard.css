@@ -1,9 +1,11 @@
+/* ========== DASHBOARD ========== */
 .dashboard {
   display: flex;
   height: 100vh;
   width: 100vw;
   background: #3838389f;
   font-family: "Segoe UI", sans-serif;
+  overflow: hidden;
 }
 
 /* Main */
@@ -11,18 +13,15 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
-/* Cards */
+/* ========== CARDS ========== */
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
   padding: 20px;
-}
-
-.card:hover{
-  background: linear-gradient(135deg, #6f00ff, #3f3b3b);
 }
 
 .card {
@@ -31,23 +30,24 @@
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   text-align: center;
-}
-.card h3 {
-  font-size: 25px;
-  margin-bottom: 5px;
-  color: rgb(255, 255, 255);
-}
-.card p {
-  font-size: 14px;
-  color: rgb(255, 255, 255);
-  margin-bottom: 30px;
-  margin-top: 0;
+  transition: 0.3s;
+  cursor: pointer;
 }
 
-/* Conteúdo */
-.content {
-  padding: 20px;
-  color: black;
+.card:hover {
+  background: linear-gradient(135deg, #6f00ff, #3f3b3b);
+}
+
+.card h3 {
+  font-size: 22px;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.card p {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
 /* Botões dentro dos cards */
@@ -62,19 +62,18 @@
   cursor: pointer;
   transition: 0.2s;
 }
-
 .card-btn:hover {
   background: #f0f0f0;
 }
 
-/* Card grande */
+/* ========== BIG CARD ========== */
 .big-card {
   margin: 20px;
   padding: 30px;
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  flex: 1; /* ocupa o resto do espaço */
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -85,8 +84,152 @@
   margin-bottom: 15px;
   color: #333;
 }
-
 .big-card p {
   font-size: 16px;
   color: #555;
+}
+
+/* ========== TOPBAR ========== */
+.topbar {
+  height: 60px;
+  background: linear-gradient(135deg, #a169eb, #9146f3);
+  display: flex;
+  justify-content: space-between; /* botão menu mobile + perfil */
+  align-items: center;
+  padding: 0 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.bem-vindo {
+  font-size: 20px;
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  background: #fff;
+  color: #7913fd;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.action-btn:hover {
+  background: #f0f0f0;
+}
+
+/* Botão de menu (aparece só no mobile) */
+.menu-btn {
+  display: none;
+  font-size: 26px;
+  color: white;
+  cursor: pointer;
+}
+
+/* ========== SIDEBAR ========== */
+.sidebar {
+  width: 240px;
+  height: 100%;
+  background: linear-gradient(135deg, #a169eb, #7913fd);
+  color: #fff;
+  padding: 20px;
+  transition: transform 0.3s ease;
+}
+.sidebar h2.logo {
+  margin-bottom: 30px;
+  font-size: 22px;
+}
+.sidebar nav a {
+  display: block;
+  color: #ffffff;
+  text-decoration: none;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  transition: 0.2s;
+}
+.sidebar nav a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+.sidebar-actions {
+  margin-top: auto;
+}
+.action-btn-sidebar {
+  background: #fff;
+  color: #7913fd;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s;
+}
+.action-btn-sidebar:hover {
+  background: #b67eff;
+  color: white;
+}
+
+/* ========== RESPONSIVIDADE ========== */
+@media (max-width: 1024px) {
+  .cards {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  /* sidebar escondida */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    z-index: 1000;
+    height: 100%;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* botão menu aparece */
+  .menu-btn {
+    display: block;
+  }
+
+  .cards {
+    grid-template-columns: 1fr; /* 1 por linha */
+  }
+
+  .big-card {
+    margin: 10px;
+    padding: 20px;
+  }
+
+  .bem-vindo {
+    font-size: 18px;
+  }
+  .avatar {
+    width: 32px;
+    height: 32px;
+  }
 }

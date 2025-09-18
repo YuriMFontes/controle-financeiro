@@ -1,25 +1,49 @@
-/* Topbar */
 .topbar {
   height: 60px;
   background: linear-gradient(135deg, #a169eb, #9146f3);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  padding: 0 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Profile */
+/* ===== Botão do menu na Topbar ===== */
+.menu-btn {
+  font-size: 18px;
+  background: #fff;
+  color: #7913fd;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+.menu-btn:hover {
+  background: #f0f0f0;
+}
+@media (min-width: 769px) {
+  .menu-btn {
+    display: none; /* só aparece no mobile */
+  }
+}
+
 .profile {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
+}
+
+.bem-vindo {
+  font-size: 20px;
+  color: white;
 }
 
 .actions {
@@ -31,19 +55,23 @@
   background: #fff;
   color: #7913fd;
   border: none;
-  padding: 8px 14px;
+  padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
   font-weight: 500;
   transition: 0.2s;
 }
-
 .action-btn:hover {
   background: #f0f0f0;
 }
 
-.bem-vindo{
-  font-size: 25px;
-  color: white;
+/* Esconde no mobile */
+.desktop-only {
+  display: block;
+}
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none;
+  }
 }
