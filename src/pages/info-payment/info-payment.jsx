@@ -12,6 +12,7 @@ export default function Info_Payment() {
   const navigate = useNavigate();
   const [installments, setInstallments] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
 
   const handleLogout = async () => {
@@ -115,10 +116,17 @@ export default function Info_Payment() {
 
   return (
     <div className="payment">
-      <Sidebar onLogout={handleLogout} />
+      <Sidebar
+              onLogout={handleLogout}
+              open={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
 
       <main className="main">
-        <Topbar />
+        <Topbar
+          onLogout={handleLogout}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
 
         <MonthSelector
           selectedMonth={selectedMonth}

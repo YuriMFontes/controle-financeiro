@@ -13,6 +13,7 @@ export default function AddAccount() {
   const [value, setValue] = useState("");
   const [description, setDescription] = useState("");
   const [installments, setInstallments] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -114,9 +115,16 @@ export default function AddAccount() {
 
   return (
     <div className="account">
-      <Sidebar onLogout={handleLogout} />
+      <Sidebar
+      onLogout={handleLogout}
+      open={sidebarOpen}
+      onClose={() => setSidebarOpen(false)}
+      />
       <div className="main">
-        <Topbar />
+        <Topbar
+                onLogout={handleLogout}
+                onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+              />  
         <main className="container">
           <div className="form-container">
             <button onClick={handleAccountFixed}>Adicionar Conta Fixa</button>

@@ -5,6 +5,7 @@
   font-family: 'Segoe UI', sans-serif;
   background: linear-gradient(135deg, #4e60b3, #667eea);
   color: #333;
+  flex-direction: row;
 }
 
 /* Main */
@@ -61,12 +62,6 @@
   color: #2f2f4b;
 }
 
-.list li .remaining {
-  margin-top: 6px;
-  font-weight: bold;
-  color: #ff6b6b;
-}
-
 .list li p,
 .list li span {
   font-size: 15px;
@@ -88,6 +83,7 @@
   margin-top: 10px;
   display: flex;
   gap: 10px;
+  flex-wrap: wrap; /* garante que botões não quebrem em telas pequenas */
 }
 
 .card-buttons button {
@@ -98,6 +94,7 @@
   font-size: 14px;
   font-weight: 500;
   transition: 0.2s;
+  flex: 1; /* distribui botões igualmente em telas pequenas */
 }
 
 .card-buttons button:hover {
@@ -124,6 +121,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 10px;
 }
 
 .modal-content {
@@ -131,11 +129,84 @@
   padding: 20px;
   border-radius: 12px;
   width: 400px;
-  max-width: 90%;
+  max-width: 100%;
 }
 
 .modal-buttons {
   margin-top: 15px;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* ================== RESPONSIVIDADE ================== */
+
+/* Tablets (até 1024px) */
+@media (max-width: 1024px) {
+  .list {
+    padding: 20px;
+  }
+
+  .list h2 {
+    font-size: 24px;
+  }
+
+  .list ul {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  }
+}
+
+/* Mobile (até 768px) */
+@media (max-width: 768px) {
+  .payment {
+    flex-direction: column;
+  }
+
+  .list {
+    padding: 15px;
+    border-radius: 0;
+  }
+
+  .list h2 {
+    font-size: 22px;
+    text-align: center;
+  }
+
+  .list ul {
+    grid-template-columns: 1fr; /* uma coluna no mobile */
+  }
+
+  .list li {
+    padding: 15px;
+  }
+
+  .card-buttons {
+    flex-direction: column;
+  }
+
+  .card-buttons button {
+    width: 100%;
+  }
+}
+
+/* Telas muito pequenas (até 480px) */
+@media (max-width: 480px) {
+  .list h2 {
+    font-size: 20px;
+  }
+
+  .list li strong {
+    font-size: 16px;
+  }
+
+  .list li p,
+  .list li span {
+    font-size: 14px;
+  }
+
+  .modal-content {
+    padding: 15px;
+    border-radius: 10px;
+  }
 }
