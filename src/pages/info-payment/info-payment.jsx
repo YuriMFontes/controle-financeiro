@@ -1,4 +1,3 @@
-// src/componentes/Info_Payment.js
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
@@ -7,21 +6,20 @@ import Topbar from "../../componentes/top-bar/top-bar";
 import { formatDateLocal, firstDayOfMonth, formatDateBR } from "../../componentes/date/date";
 import "./info-payment.css";
 import MonthSelector from "../../componentes/monthselector/monthselector";
+import { ensureFixedInstallments } from "../../lib/fixedInstallments";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
   const [installments, setInstallments] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
 
   const handleEdit = (item) => {
     setSelectedItem(item);
@@ -34,77 +32,56 @@ export default function Info_Payment() {
   };
 
   const handleMarkPaid = async (item) => {
+    let table = item.type === "FIXA" ? "fixed_installments" : "installments";
+
     const { error } = await supabase
-      .from("installments")
-      .update({ status: "Pago", paid_at: new Date().toISOString() })
+      .from(table)
+      .update({ status: "Pago" }) // removido o paid_at
       .eq("id", item.id);
 
     if (error) {
       alert("Erro ao marcar pagamento: " + error.message);
     } else {
-      setInstallments((prev) =>
-        prev.map((inst) =>
-          inst.id === item.id ? { ...inst, status: "Pago", paid_at: new Date() } : inst
-        )
+      setInstallments(prev =>
+        prev.map(inst => inst.id === item.id ? { ...inst, status: "Pago" } : inst)
       );
     }
   };
 
+
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
-
     const start = firstDayOfMonth(monthDate);
     const end = firstDayOfMonth(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
 
     const startStr = formatDateLocal(start);
     const endStr = formatDateLocal(end);
 
-    // Contas variáveis
-    const { data: installmentsData, error: installmentsError } = await supabase
+    // 1️⃣ Parcelas variáveis
+    const { data: variable, error: varError } = await supabase
       .from("installments")
-      .select(`
-        id,
-        parcel_number,
-        due_date,
-        amount,
-        status,
-        accounts!inner (
-          id,
-          user_id,
-          name,
-          parcel_count,
-          description,
-          account_type
-        )
-      `)
+      .select("*, accounts(*)")
       .eq("accounts.user_id", user.id)
       .gte("due_date", startStr)
       .lt("due_date", endStr)
       .order("due_date", { ascending: true });
 
-    if (installmentsError) console.error(installmentsError);
+    if (varError) console.error(varError);
 
-    // Contas fixas
-    const { data: fixedAccounts, error: fixedError } = await supabase
-      .from("accounts")
-      .select("id, name, description, total_value, account_type")
-      .eq("user_id", user.id)
-      .eq("account_type", "FIXA");
+    // 2️⃣ Garantir que parcelas fixas existam
+    await ensureFixedInstallments(start);
 
-    if (fixedError) console.error(fixedError);
+    // 3️⃣ Buscar parcelas fixas
+    const { data: fixed, error: fixError } = await supabase
+      .from("fixed_installments")
+      .select("*, accounts(*)")
+      .eq("month_date", startStr);
 
-    // Mescla contas variáveis e fixas
+    if (fixError) console.error(fixError);
+
     const merged = [
-      ...(installmentsData || []).map((i) => ({ ...i, type: "VARIAVEL" })),
-      ...(fixedAccounts || []).map((f) => ({
-        id: f.id,
-        parcel_number: null,
-        due_date: new Date(monthDate),
-        amount: f.total_value,
-        status: "Em Aberto",
-        accounts: f,
-        type: "FIXA",
-      })),
+      ...(variable || []).map(i => ({ ...i, type: "VARIAVEL" })),
+      ...(fixed || []).map(f => ({ ...f, type: "FIXA" })),
     ];
 
     setInstallments(merged);
@@ -116,22 +93,12 @@ export default function Info_Payment() {
 
   return (
     <div className="payment">
-      <Sidebar
-              onLogout={handleLogout}
-              open={sidebarOpen}
-              onClose={() => setSidebarOpen(false)}
-            />
+      <Sidebar onLogout={handleLogout} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <main className="main">
-        <Topbar
-          onLogout={handleLogout}
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Topbar onLogout={handleLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-        <MonthSelector
-          selectedMonth={selectedMonth}
-          onChange={setSelectedMonth}
-        />
+        <MonthSelector selectedMonth={selectedMonth} onChange={setSelectedMonth} />
 
         <div className="list">
           <h2>Pagamentos do Mês:</h2>
@@ -195,10 +162,7 @@ export default function Info_Payment() {
                   if (selectedItem.type === "VARIAVEL") {
                     const { error } = await supabase
                       .from("installments")
-                      .update({
-                        amount: selectedItem.amount,
-                        status: selectedItem.status,
-                      })
+                      .update({ amount: selectedItem.amount, status: selectedItem.status })
                       .eq("id", selectedItem.id);
 
                     if (error) {
@@ -212,9 +176,7 @@ export default function Info_Payment() {
                   } else {
                     const { error } = await supabase
                       .from("accounts")
-                      .update({
-                        total_value: selectedItem.amount,
-                      })
+                      .update({ total_value: selectedItem.amount })
                       .eq("id", selectedItem.id);
 
                     if (error) {
@@ -246,7 +208,7 @@ export default function Info_Payment() {
                     onChange={(e) =>
                       setSelectedItem({ ...selectedItem, status: e.target.value })
                     }
-                    disabled={selectedItem.type === "FIXA"} // fixa não tem status
+                    disabled={selectedItem.type === "FIXA"}
                   >
                     <option value="Em Aberto">A Pagar</option>
                     <option value="Pago">Pago</option>
@@ -285,10 +247,10 @@ export default function Info_Payment() {
                       }
                     }}
                   >
-                  Excluir
+                    Excluir
                   </button>
                   <button type="button" onClick={handleCloseModal}>
-                  Cancelar
+                    Cancelar
                   </button>
                 </div>
               </form>

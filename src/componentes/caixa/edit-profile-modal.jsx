@@ -12,6 +12,7 @@ export default function EditProfileModal({ isOpen, onClose, userId, onProfileUpd
   useEffect(() => {
     if (isOpen && userId) {
       const fetchProfile = async () => {
+        // Buscar dados do usuário logado
         const { data: userData, error: userError } = await supabase.auth.getUser();
         if (userError) {
           console.error("Erro ao buscar usuário:", userError.message);
@@ -20,6 +21,7 @@ export default function EditProfileModal({ isOpen, onClose, userId, onProfileUpd
 
         setEmail(userData?.user?.email || "");
 
+        // Buscar o perfil na tabela profiles
         const { data, error } = await supabase
           .from("profiles")
           .select("full_name")
@@ -29,7 +31,7 @@ export default function EditProfileModal({ isOpen, onClose, userId, onProfileUpd
         if (error) {
           console.error("Erro ao carregar perfil:", error.message);
         } else {
-          setFullName(data.full_name || "");
+          setFullName(data?.full_name || "");
         }
       };
 
@@ -90,6 +92,7 @@ export default function EditProfileModal({ isOpen, onClose, userId, onProfileUpd
               className="modal-input"
             />
           </div>
+
           <div className="modal-actions">
             <button className="modal-button cancel" onClick={onClose}>Cancelar</button>
             <button className="modal-button save" onClick={handleSave} disabled={loading}>
