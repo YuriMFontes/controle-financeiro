@@ -1,14 +1,12 @@
 import React from "react";
-import "./monthselector.css"
+import "./monthselector.css";
 
 export default function MonthSelector({ selectedMonth, onChange }) {
-  const monthInputValue = `${selectedMonth.getFullYear()}-${String(
-    selectedMonth.getMonth() + 1
-  ).padStart(2, "0")}`;
+  const monthInputValue = `${selectedMonth.getFullYear()}-${String(selectedMonth.getMonth() + 1).padStart(2, "0")}`;
 
   const handleChange = (e) => {
     const [y, m] = e.target.value.split("-");
-    onChange(new Date(Number(y), Number(m) -1, 1));
+    onChange(new Date(Number(y), Number(m) - 1, 1));
   };
 
   return (

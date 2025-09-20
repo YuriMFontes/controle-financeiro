@@ -1,12 +1,10 @@
-// src/pages/info-payment/Info_Payment.js
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
-import { formatDateLocal, formatDateBR } from "../../componentes/date/date";
-import "./info-payment.css";
 import MonthSelector from "../../componentes/monthselector/monthselector";
+import "./info-payment.css";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
@@ -46,12 +44,17 @@ export default function Info_Payment() {
     }
   };
 
+  const formatDateBR = (dateStr) => {
+    const [yyyy, mm, dd] = dateStr.split("-");
+    return `${dd}/${mm}/${yyyy}`;
+  };
+
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const startStr = formatDateLocal(new Date(monthDate.getFullYear(), monthDate.getMonth(), 1));
-    const endStr = formatDateLocal(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
+    const startStr = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, "0")}-01`;
+    const endStr = `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 2).padStart(2, "0")}-01`;
 
     const { data, error } = await supabase
       .from("installments")
@@ -76,10 +79,8 @@ export default function Info_Payment() {
   return (
     <div className="payment">
       <Sidebar onLogout={handleLogout} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       <main className="main">
         <Topbar onLogout={handleLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-
         <MonthSelector selectedMonth={selectedMonth} onChange={setSelectedMonth} />
 
         <div className="list">
@@ -116,7 +117,6 @@ export default function Info_Payment() {
                   <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
                     {item.status}
                   </span>
-
                   <div className="card-buttons">
                     <button onClick={() => handleEdit(item)}>Editar</button>
                     {item.status !== "Pago" && (
@@ -128,88 +128,6 @@ export default function Info_Payment() {
             </ul>
           )}
         </div>
-
-        {isModalOpen && selectedItem && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h3>Editar Conta</h3>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  const { error } = await supabase
-                    .from("installments")
-                    .update({
-                      amount: selectedItem.amount,
-                      status: selectedItem.status,
-                    })
-                    .eq("id", selectedItem.id);
-
-                  if (error) {
-                    alert("Erro ao atualizar: " + error.message);
-                  } else {
-                    setInstallments((prev) =>
-                      prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                    );
-                    handleCloseModal();
-                  }
-                }}
-              >
-                <label>
-                  Valor:
-                  <input
-                    type="number"
-                    value={selectedItem.amount}
-                    onChange={(e) =>
-                      setSelectedItem({ ...selectedItem, amount: e.target.value })
-                    }
-                  />
-                </label>
-
-                <label>
-                  Status:
-                  <select
-                    value={selectedItem.status}
-                    onChange={(e) =>
-                      setSelectedItem({ ...selectedItem, status: e.target.value })
-                    }
-                  >
-                    <option value="Em Aberto">A Pagar</option>
-                    <option value="Pago">Pago</option>
-                  </select>
-                </label>
-
-                <div className="modal-buttons">
-                  <button type="submit">Salvar</button>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      if (window.confirm("Tem certeza que deseja excluir essa conta?")) {
-                        const { error } = await supabase
-                          .from("installments")
-                          .delete()
-                          .eq("id", selectedItem.id);
-
-                        if (error) {
-                          alert("Erro ao excluir: " + error.message);
-                        } else {
-                          setInstallments((prev) =>
-                            prev.filter((i) => i.id !== selectedItem.id)
-                          );
-                          handleCloseModal();
-                        }
-                      }
-                    }}
-                  >
-                    Excluir
-                  </button>
-                  <button type="button" onClick={handleCloseModal}>
-                    Cancelar
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   );

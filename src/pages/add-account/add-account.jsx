@@ -1,4 +1,3 @@
-// src/componentes/AddAccount/AddAccount.js
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
@@ -31,24 +30,24 @@ export default function AddAccount() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const numericValue = parseFloat(value);
+    if (isNaN(numericValue) || numericValue <= 0) {
+      alert("Informe um valor válido (> 0).");
+      return;
+    }
+
     let installmentsCount;
     if (accountType === "FIXA") {
-      installmentsCount = 40;
+      installmentsCount = 24; 
     } else {
       installmentsCount = parseInt(installments, 10);
-      if (
-        isNaN(installmentsCount) ||
-        installmentsCount <= 0 ||
-        installmentsCount > 40
-      ) {
-        alert("Número de parcelas inválido. Deve ser entre 1 e 40.");
+      if (isNaN(installmentsCount) || installmentsCount <= 0 || installmentsCount > 24) {
+        alert("Número de parcelas inválido. Deve ser entre 1 e 24.");
         return;
       }
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const today = new Date();
     let referenceMonth;
@@ -61,17 +60,15 @@ export default function AddAccount() {
 
     const { data: accountsData, error: accountError } = await supabase
       .from("accounts")
-      .insert([
-        {
-          user_id: user.id,
-          name,
-          description,
-          total_value: parseFloat(value), // ✅ corrigido
-          parcel_count: installmentsCount,
-          reference_month: referenceMonthISO,
-          account_type: accountType,
-        },
-      ])
+      .insert([{
+        user_id: user.id,
+        name,
+        description,
+        total_value: numericValue,
+        parcel_count: installmentsCount,
+        reference_month: referenceMonthISO,
+        account_type: accountType,
+      }])
       .select();
 
     if (accountError) {
@@ -80,34 +77,41 @@ export default function AddAccount() {
     }
 
     const account = accountsData[0];
-    const valorParcela = parseFloat(value) / installmentsCount; // ✅ corrigido
     const parcelas = [];
 
     const [year, month] = referenceMonthISO.split("-").map(Number);
-    const startDate = new Date(year, month - 1, 1);
 
-    for (let i = 1; i <= installmentsCount; i++) {
-      const dueDate = new Date(startDate);
-      dueDate.setMonth(dueDate.getMonth() + (i - 1));
+    for (let i = 0; i < installmentsCount; i++) {
+      const dueYear = year + Math.floor((month - 1 + i) / 12);
+      const dueMonth = ((month - 1 + i) % 12) + 1;
+      const dueDay = 1;
+
+      let amount;
+      if (accountType === "FIXA") {
+        amount = parseFloat(numericValue.toFixed(2));
+      } else {
+        const totalCents = Math.round(numericValue * 100);
+        const baseCents = Math.floor(totalCents / installmentsCount);
+        const remainder = totalCents - baseCents * installmentsCount;
+        const cents = baseCents + (i < remainder ? 1 : 0);
+        amount = parseFloat((cents / 100).toFixed(2));
+      }
+
+      const dueDateStr = `${dueYear}-${String(dueMonth).padStart(2, "0")}-${String(dueDay).padStart(2, "0")}`;
 
       parcelas.push({
         account_id: account.id,
-        parcel_number: i,
-        due_date: formatDateLocal(dueDate),
-        amount: parseFloat(valorParcela.toFixed(2)),
+        parcel_number: i + 1,
+        due_date: dueDateStr,
+        amount,
         status: "Em Aberto",
       });
     }
 
-    const { error: installmentsError } = await supabase
-      .from("installments")
-      .insert(parcelas);
+    const { error: installmentsError } = await supabase.from("installments").insert(parcelas);
 
     if (installmentsError) {
-      alert(
-        "Conta criada, mas erro ao salvar parcelas: " +
-          installmentsError.message
-      );
+      alert("Conta criada, mas erro ao salvar parcelas: " + installmentsError.message);
     } else {
       alert("Conta e parcelas criadas com sucesso!");
       navigate("/dashboard");
@@ -116,21 +120,13 @@ export default function AddAccount() {
 
   return (
     <div className="account">
-      <Sidebar
-        onLogout={handleLogout}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <Sidebar onLogout={handleLogout} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="main">
-        <Topbar
-          onLogout={handleLogout}
-          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-        />
+        <Topbar onLogout={handleLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
         <main className="container">
           <div className="form-container">
             <h2>Adicionar Conta</h2>
 
-            {/* Radios bonitos */}
             <div className="radio-group">
               <label className="radio-card">
                 <input
@@ -184,7 +180,7 @@ export default function AddAccount() {
                   onChange={(e) => setInstallments(e.target.value)}
                 />
               ) : (
-                <input type="text" value="36 meses (fixo)" disabled />
+                <input type="text" value="24 meses (fixo)" disabled />
               )}
 
               <button type="submit">Adicionar Conta</button>
