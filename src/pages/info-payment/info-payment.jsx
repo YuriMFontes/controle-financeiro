@@ -1,12 +1,12 @@
+// src/pages/info-payment/Info_Payment.js
 import { useEffect, useState } from "react";
 import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
-import { formatDateLocal, firstDayOfMonth, formatDateBR } from "../../componentes/date/date";
+import { formatDateLocal, formatDateBR } from "../../componentes/date/date";
 import "./info-payment.css";
 import MonthSelector from "../../componentes/monthselector/monthselector";
-import { ensureFixedInstallments } from "../../lib/fixedInstallments";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
@@ -32,33 +32,28 @@ export default function Info_Payment() {
   };
 
   const handleMarkPaid = async (item) => {
-    let table = item.type === "FIXA" ? "fixed_installments" : "installments";
-
     const { error } = await supabase
-      .from(table)
-      .update({ status: "Pago" }) // removido o paid_at
+      .from("installments")
+      .update({ status: "Pago", paid_at: new Date().toISOString() })
       .eq("id", item.id);
 
     if (error) {
       alert("Erro ao marcar pagamento: " + error.message);
     } else {
-      setInstallments(prev =>
-        prev.map(inst => inst.id === item.id ? { ...inst, status: "Pago" } : inst)
+      setInstallments((prev) =>
+        prev.map((inst) => (inst.id === item.id ? { ...inst, status: "Pago" } : inst))
       );
     }
   };
 
-
   const fetchInstallments = async (monthDate) => {
     const { data: { user } } = await supabase.auth.getUser();
-    const start = firstDayOfMonth(monthDate);
-    const end = firstDayOfMonth(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
+    if (!user) return;
 
-    const startStr = formatDateLocal(start);
-    const endStr = formatDateLocal(end);
+    const startStr = formatDateLocal(new Date(monthDate.getFullYear(), monthDate.getMonth(), 1));
+    const endStr = formatDateLocal(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
 
-    // 1️⃣ Parcelas variáveis
-    const { data: variable, error: varError } = await supabase
+    const { data, error } = await supabase
       .from("installments")
       .select("*, accounts(*)")
       .eq("accounts.user_id", user.id)
@@ -66,25 +61,12 @@ export default function Info_Payment() {
       .lt("due_date", endStr)
       .order("due_date", { ascending: true });
 
-    if (varError) console.error(varError);
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-    // 2️⃣ Garantir que parcelas fixas existam
-    await ensureFixedInstallments(start);
-
-    // 3️⃣ Buscar parcelas fixas
-    const { data: fixed, error: fixError } = await supabase
-      .from("fixed_installments")
-      .select("*, accounts(*)")
-      .eq("month_date", startStr);
-
-    if (fixError) console.error(fixError);
-
-    const merged = [
-      ...(variable || []).map(i => ({ ...i, type: "VARIAVEL" })),
-      ...(fixed || []).map(f => ({ ...f, type: "FIXA" })),
-    ];
-
-    setInstallments(merged);
+    setInstallments(data || []);
   };
 
   useEffect(() => {
@@ -112,18 +94,13 @@ export default function Info_Payment() {
                   <br />
                   <em>{item.accounts?.description}</em>
                   <br />
-                  {item.type === "VARIAVEL" ? (
+                  {item.accounts?.account_type === "VARIAVEL" ? (
                     <>
                       Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
                       <br />
                       Valor: R$ {Number(item.amount).toFixed(2)}
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
-                      <br />
-                      Status:{" "}
-                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
-                        {item.status}
-                      </span>
                     </>
                   ) : (
                     <>
@@ -132,13 +109,13 @@ export default function Info_Payment() {
                       Valor: R$ {Number(item.amount).toFixed(2)}
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
-                      <br />
-                      Status:{" "}
-                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
-                        {item.status}
-                      </span>
                     </>
                   )}
+                  <br />
+                  Status:{" "}
+                  <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
+                    {item.status}
+                  </span>
 
                   <div className="card-buttons">
                     <button onClick={() => handleEdit(item)}>Editar</button>
@@ -159,34 +136,21 @@ export default function Info_Payment() {
               <form
                 onSubmit={async (e) => {
                   e.preventDefault();
-                  if (selectedItem.type === "VARIAVEL") {
-                    const { error } = await supabase
-                      .from("installments")
-                      .update({ amount: selectedItem.amount, status: selectedItem.status })
-                      .eq("id", selectedItem.id);
+                  const { error } = await supabase
+                    .from("installments")
+                    .update({
+                      amount: selectedItem.amount,
+                      status: selectedItem.status,
+                    })
+                    .eq("id", selectedItem.id);
 
-                    if (error) {
-                      alert("Erro ao atualizar: " + error.message);
-                    } else {
-                      setInstallments((prev) =>
-                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                      );
-                      handleCloseModal();
-                    }
+                  if (error) {
+                    alert("Erro ao atualizar: " + error.message);
                   } else {
-                    const { error } = await supabase
-                      .from("accounts")
-                      .update({ total_value: selectedItem.amount })
-                      .eq("id", selectedItem.id);
-
-                    if (error) {
-                      alert("Erro ao atualizar conta fixa: " + error.message);
-                    } else {
-                      setInstallments((prev) =>
-                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                      );
-                      handleCloseModal();
-                    }
+                    setInstallments((prev) =>
+                      prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
+                    );
+                    handleCloseModal();
                   }
                 }}
               >
@@ -208,7 +172,6 @@ export default function Info_Payment() {
                     onChange={(e) =>
                       setSelectedItem({ ...selectedItem, status: e.target.value })
                     }
-                    disabled={selectedItem.type === "FIXA"}
                   >
                     <option value="Em Aberto">A Pagar</option>
                     <option value="Pago">Pago</option>
@@ -221,20 +184,10 @@ export default function Info_Payment() {
                     type="button"
                     onClick={async () => {
                       if (window.confirm("Tem certeza que deseja excluir essa conta?")) {
-                        let error;
-                        if (selectedItem.type === "VARIAVEL") {
-                          const { error: err } = await supabase
-                            .from("installments")
-                            .delete()
-                            .eq("id", selectedItem.id);
-                          error = err;
-                        } else if (selectedItem.type === "FIXA") {
-                          const { error: err } = await supabase
-                            .from("accounts")
-                            .delete()
-                            .eq("id", selectedItem.id);
-                          error = err;
-                        }
+                        const { error } = await supabase
+                          .from("installments")
+                          .delete()
+                          .eq("id", selectedItem.id);
 
                         if (error) {
                           alert("Erro ao excluir: " + error.message);

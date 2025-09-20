@@ -13,14 +13,13 @@ export default function AddAccount() {
   const [value, setValue] = useState("");
   const [description, setDescription] = useState("");
   const [installments, setInstallments] = useState("");
+  const [accountType, setAccountType] = useState("VARIAVEL");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
-
-  const handleAccountFixed = () => navigate("/add-account-fixed");
 
   const formatDateLocal = (d) => {
     const yyyy = d.getFullYear();
@@ -32,35 +31,34 @@ export default function AddAccount() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const installmentsCount = parseInt(installments, 10);
-    if (!installmentsCount || installmentsCount <= 0) {
-      alert("Informe um número de parcelas válido.");
-      return;
+    let installmentsCount;
+    if (accountType === "FIXA") {
+      installmentsCount = 40;
+    } else {
+      installmentsCount = parseInt(installments, 10);
+      if (
+        isNaN(installmentsCount) ||
+        installmentsCount <= 0 ||
+        installmentsCount > 40
+      ) {
+        alert("Número de parcelas inválido. Deve ser entre 1 e 40.");
+        return;
+      }
     }
-    const totalValue = parseFloat(value);
-    if (!totalValue || totalValue <= 0) {
-      alert("Informe um valor válido.");
-      return;
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    const today = new Date();
+    let referenceMonth;
+    if (today.getDate() > 20) {
+      referenceMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    } else {
+      referenceMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     }
+    const referenceMonthISO = formatDateLocal(referenceMonth);
 
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // regra de corte no dia 20
-  const today = new Date();
-  let referenceMonth;
-
-  if (today.getDate() > 20) {
-    // passa pro próximo mês
-    referenceMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-  } else {
-    // fica no mês atual
-    referenceMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  }
-
-  const referenceMonthISO = formatDateLocal(referenceMonth);
-
-
-    // create account with parcel_count and account_type
     const { data: accountsData, error: accountError } = await supabase
       .from("accounts")
       .insert([
@@ -68,10 +66,10 @@ export default function AddAccount() {
           user_id: user.id,
           name,
           description,
-          total_value: totalValue,
+          total_value: parseFloat(value), // ✅ corrigido
           parcel_count: installmentsCount,
           reference_month: referenceMonthISO,
-          account_type: "VARIAVEL",
+          account_type: accountType,
         },
       ])
       .select();
@@ -82,11 +80,11 @@ export default function AddAccount() {
     }
 
     const account = accountsData[0];
-    const valorParcela = totalValue / installmentsCount;
+    const valorParcela = parseFloat(value) / installmentsCount; // ✅ corrigido
     const parcelas = [];
 
     const [year, month] = referenceMonthISO.split("-").map(Number);
-    const startDate = new Date(year, month, 1);
+    const startDate = new Date(year, month - 1, 1);
 
     for (let i = 1; i <= installmentsCount; i++) {
       const dueDate = new Date(startDate);
@@ -106,7 +104,10 @@ export default function AddAccount() {
       .insert(parcelas);
 
     if (installmentsError) {
-      alert("Conta criada, mas erro ao salvar parcelas: " + installmentsError.message);
+      alert(
+        "Conta criada, mas erro ao salvar parcelas: " +
+          installmentsError.message
+      );
     } else {
       alert("Conta e parcelas criadas com sucesso!");
       navigate("/dashboard");
@@ -116,24 +117,76 @@ export default function AddAccount() {
   return (
     <div className="account">
       <Sidebar
-      onLogout={handleLogout}
-      open={sidebarOpen}
-      onClose={() => setSidebarOpen(false)}
+        onLogout={handleLogout}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
       />
       <div className="main">
         <Topbar
-                onLogout={handleLogout}
-                onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-              />  
+          onLogout={handleLogout}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
         <main className="container">
           <div className="form-container">
-            <button onClick={handleAccountFixed}>Adicionar Conta Fixa</button>
-            <h2>Adicionar Conta Variável</h2>
+            <h2>Adicionar Conta</h2>
+
+            {/* Radios bonitos */}
+            <div className="radio-group">
+              <label className="radio-card">
+                <input
+                  type="radio"
+                  name="accountType"
+                  value="VARIAVEL"
+                  checked={accountType === "VARIAVEL"}
+                  onChange={(e) => setAccountType(e.target.value)}
+                />
+                <span>Conta Variável</span>
+              </label>
+
+              <label className="radio-card">
+                <input
+                  type="radio"
+                  name="accountType"
+                  value="FIXA"
+                  checked={accountType === "FIXA"}
+                  onChange={(e) => setAccountType(e.target.value)}
+                />
+                <span>Conta Fixa</span>
+              </label>
+            </div>
+
             <form onSubmit={handleSubmit}>
-              <input type="text" placeholder="Nome da conta" value={name} onChange={(e) => setName(e.target.value)} required />
-              <input type="number" placeholder="Valor" value={value} onChange={(e) => setValue(e.target.value)} required />
-              <textarea placeholder="Descrição" value={description} onChange={(e) => setDescription(e.target.value)} />
-              <input type="number" placeholder="Informe de parcelas" value={installments} onChange={(e) => setInstallments(e.target.value)} />
+              <input
+                type="text"
+                placeholder="Nome da conta"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+              <input
+                type="number"
+                placeholder="Valor"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                required
+              />
+              <textarea
+                placeholder="Descrição"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+
+              {accountType === "VARIAVEL" ? (
+                <input
+                  type="number"
+                  placeholder="Número de parcelas"
+                  value={installments}
+                  onChange={(e) => setInstallments(e.target.value)}
+                />
+              ) : (
+                <input type="text" value="36 meses (fixo)" disabled />
+              )}
+
               <button type="submit">Adicionar Conta</button>
             </form>
           </div>

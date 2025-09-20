@@ -4,7 +4,6 @@ import Dashboard from "./pages/dashboard/dashboard";
 import LoginRegister from "./pages/login-register/login-register";
 import AddAccount from "./pages/add-account/add-account";
 import Info_Payment from "./pages/info-payment/info-payment";
-import AddAccountFixed from "./pages/add-account-fixed/add-account-fixed";
 
 export default function App() {
   return (
@@ -23,14 +22,6 @@ export default function App() {
         element={
           <PrivateRoute>
             <AddAccount />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/add-account-fixed"
-        element={
-          <PrivateRoute>
-            <AddAccountFixed />
           </PrivateRoute>
         }
       />
