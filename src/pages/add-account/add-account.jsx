@@ -169,6 +169,7 @@ export default function AddAccount() {
               <textarea
                 placeholder="Descrição"
                 value={description}
+                maxLength={20}
                 onChange={(e) => setDescription(e.target.value)}
               />
 
