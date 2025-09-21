@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabaseClient";
 import "./login-register.css";
@@ -10,41 +10,37 @@ export default function LoginRegister() {
   const [fullName, setFullName] = useState("");
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data.session) {
+        navigate("/dashboard");
+      }
+    };
+    checkSession();
+  }, [navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isRegister) {
-      // Cadastro
       const { data, error } = await supabase.auth.signUp({ email, password });
 
       if (error) {
         alert(error.message);
       } else {
         const user = data.user;
-
-        // Cria o perfil na tabela profiles
         if (user) {
           const { error: profileError } = await supabase.from("profiles").insert([
-            {
-              id: user.id,
-              full_name: fullName,
-            },
+            { id: user.id, full_name: fullName },
           ]);
-
-          if (profileError) {
-            console.error("Erro ao criar perfil:", profileError.message);
-          }
+          if (profileError) console.error("Erro ao criar perfil:", profileError.message);
         }
-
         alert("Conta criada! Faça login.");
         setIsRegister(false);
       }
     } else {
-      // Login
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         alert(error.message);
@@ -91,9 +87,7 @@ export default function LoginRegister() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            {isRegister && (
-              <input type="password" placeholder="Confirmar senha" required />
-            )}
+            {isRegister && <input type="password" placeholder="Confirmar senha" required />}
             <button type="submit">{isRegister ? "Cadastrar" : "Entrar"}</button>
           </form>
         </div>

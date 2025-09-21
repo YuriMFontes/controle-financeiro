@@ -34,14 +34,12 @@ export default function Dashboard() {
         onClose={() => setSidebarOpen(false)}
       />
 
-      {/* Conteúdo principal */}
       <main className="main">
         <Topbar
           onLogout={handleLogout}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
 
-        {/* Cards */}
         <section className="cards">
           <div className="card" onClick={handleAddAccount}>
             <h3>Adicionar Conta</h3>
@@ -59,7 +57,6 @@ export default function Dashboard() {
           </div>
         </section>
 
-        {/* Card maior embaixo */}
         <section className="big-card">
           <h2>EM CONSTRUÇÃO</h2>
           <p>
