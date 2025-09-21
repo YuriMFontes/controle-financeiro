@@ -13,6 +13,7 @@ export default function Info_Payment() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [monthlyTotal, setMonthlyTotal] = useState(0); // ✅ total do mês
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -80,20 +81,23 @@ export default function Info_Payment() {
     }
 
     setInstallments(data || []);
+
+    if (data) {
+      const total = data.reduce((acc, inst) => acc + Number(inst.amount || 0), 0);
+      setMonthlyTotal(total);
+    }
   };
 
   useEffect(() => {
     fetchInstallments(selectedMonth);
   }, [selectedMonth]);
 
-  // ✅ Função corrigida fora do JSX
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!selectedItem) return;
 
     try {
       if (selectedItem.accounts.account_type === "VARIAVEL") {
-        // Atualiza conta variável
         const { error } = await supabase
           .from("installments")
           .update({
@@ -108,7 +112,6 @@ export default function Info_Payment() {
 
         if (error) throw error;
       } else if (selectedItem.accounts.account_type === "FIXA") {
-        // Atualiza conta fixa na installments
         const { error } = await supabase
           .from("installments")
           .update({
@@ -123,7 +126,6 @@ export default function Info_Payment() {
 
         if (error) throw error;
 
-        // E também atualiza accounts
         const { error: accountError } = await supabase
           .from("accounts")
           .update({
@@ -157,10 +159,16 @@ export default function Info_Payment() {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         />
 
-        <MonthSelector
-          selectedMonth={selectedMonth}
-          onChange={setSelectedMonth}
-        />
+        <div className="month-header">
+          <MonthSelector
+            selectedMonth={selectedMonth}
+            onChange={setSelectedMonth}
+          />
+
+          <div className="monthly-total">
+            <strong>Total do mês:</strong> R$ {monthlyTotal.toFixed(2)}
+          </div>
+        </div>
 
         <div className="list">
           <h2>Pagamentos do Mês:</h2>
