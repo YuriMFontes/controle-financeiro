@@ -12,8 +12,8 @@
   color: #ffffff;
   font-size: 16px;
   font-weight: 500;
-  max-width: 100%; /* deixa ocupar largura máxima em telas pequenas */
-  flex-wrap: wrap; /* permite que label e input quebrem linha no mobile */
+  max-width: 100%; 
+  flex-wrap: wrap; 
   box-sizing: border-box;
 }
 
@@ -23,8 +23,8 @@
   align-items: center;
   gap: 8px;
   font-size: 15px;
-  color: #fff;
-  white-space: nowrap; /* mantém “Selecione o mês:” na mesma linha */
+  color: #ffffff !important; /* Força branco */
+  white-space: nowrap; 
 }
 
 /* Ícone estilo calendário */
@@ -35,7 +35,7 @@
 
 /* Input estilizado */
 .month-selector input {
-  flex: 1; /* ocupa o espaço restante */
+  flex: 1; 
   min-width: 120px;
   max-width: 220px;
   padding: 8px 14px;
@@ -49,10 +49,10 @@
   box-shadow: inset 0 0 3px rgba(0,0,0,0.1);
 }
 
-
 .month-selector input:focus {
   outline: none;
   background: #fff;
+  color: #000; /* 👈 Garante contraste no foco */
   box-shadow: 0 0 0 2px #667eea, 0 0 0 6px rgba(118, 75, 162, 0.3);
 }
 
@@ -69,20 +69,19 @@
   }
 
   .month-selector input {
-    max-width: 100%; /* input ocupa toda a linha se precisar */
+    max-width: 100%; 
     font-size: 14px;
   }
 }
 
 @media (max-width: 480px) {
   .month-selector {
-    flex-direction: column; /* força label em cima e input embaixo */
+    flex-direction: column; 
     align-items: flex-start;
     gap: 6px;
   }
 
   .month-selector input {
-    width: 90%; /* ocupa toda a largura no mobile */
+    width: 90%; 
   }
 }
-

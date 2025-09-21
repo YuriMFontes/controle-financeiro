@@ -7,14 +7,19 @@ export default function PrivateRoute({ children }) {
   const [session, setSession] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      setSession(data.session ?? null);
       setLoading(false);
-    });
+    };
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+    checkSession();
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, newSession) => {
+        setSession(newSession);
+      }
+    );
 
     return () => {
       listener.subscription.unsubscribe();

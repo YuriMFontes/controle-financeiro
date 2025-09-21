@@ -3,10 +3,8 @@ import { supabase } from "../../lib/supabaseClient";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../componentes/side-bar/side-bar";
 import Topbar from "../../componentes/top-bar/top-bar";
-import { formatDateLocal, firstDayOfMonth, formatDateBR } from "../../componentes/date/date";
-import "./info-payment.css";
 import MonthSelector from "../../componentes/monthselector/monthselector";
-import { ensureFixedInstallments } from "../../lib/fixedInstallments";
+import "./info-payment.css";
 
 export default function Info_Payment() {
   const navigate = useNavigate();
@@ -15,6 +13,7 @@ export default function Info_Payment() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [monthlyTotal, setMonthlyTotal] = useState(0); // ✅ total do mês
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -22,7 +21,7 @@ export default function Info_Payment() {
   };
 
   const handleEdit = (item) => {
-    setSelectedItem(item);
+    setSelectedItem({ ...item });
     setIsModalOpen(true);
   };
 
@@ -32,33 +31,43 @@ export default function Info_Payment() {
   };
 
   const handleMarkPaid = async (item) => {
-    let table = item.type === "FIXA" ? "fixed_installments" : "installments";
-
     const { error } = await supabase
-      .from(table)
-      .update({ status: "Pago" }) // removido o paid_at
+      .from("installments")
+      .update({ status: "Pago", paid_at: new Date().toISOString() })
       .eq("id", item.id);
 
     if (error) {
       alert("Erro ao marcar pagamento: " + error.message);
     } else {
-      setInstallments(prev =>
-        prev.map(inst => inst.id === item.id ? { ...inst, status: "Pago" } : inst)
+      setInstallments((prev) =>
+        prev.map((inst) =>
+          inst.id === item.id
+            ? { ...inst, status: "Pago", paid_at: new Date().toISOString() }
+            : inst
+        )
       );
     }
   };
 
+  const formatDateBR = (dateStr) => {
+    const [yyyy, mm, dd] = dateStr.split("-");
+    return `${dd}/${mm}/${yyyy}`;
+  };
 
   const fetchInstallments = async (monthDate) => {
-    const { data: { user } } = await supabase.auth.getUser();
-    const start = firstDayOfMonth(monthDate);
-    const end = firstDayOfMonth(new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 1));
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return;
 
-    const startStr = formatDateLocal(start);
-    const endStr = formatDateLocal(end);
+    const startStr = `${monthDate.getFullYear()}-${String(
+      monthDate.getMonth() + 1
+    ).padStart(2, "0")}-01`;
+    const endStr = `${monthDate.getFullYear()}-${String(
+      monthDate.getMonth() + 2
+    ).padStart(2, "0")}-01`;
 
-    // 1️⃣ Parcelas variáveis
-    const { data: variable, error: varError } = await supabase
+    const { data, error } = await supabase
       .from("installments")
       .select("*, accounts(*)")
       .eq("accounts.user_id", user.id)
@@ -66,39 +75,100 @@ export default function Info_Payment() {
       .lt("due_date", endStr)
       .order("due_date", { ascending: true });
 
-    if (varError) console.error(varError);
+    if (error) {
+      console.error(error);
+      return;
+    }
 
-    // 2️⃣ Garantir que parcelas fixas existam
-    await ensureFixedInstallments(start);
+    setInstallments(data || []);
 
-    // 3️⃣ Buscar parcelas fixas
-    const { data: fixed, error: fixError } = await supabase
-      .from("fixed_installments")
-      .select("*, accounts(*)")
-      .eq("month_date", startStr);
-
-    if (fixError) console.error(fixError);
-
-    const merged = [
-      ...(variable || []).map(i => ({ ...i, type: "VARIAVEL" })),
-      ...(fixed || []).map(f => ({ ...f, type: "FIXA" })),
-    ];
-
-    setInstallments(merged);
+    if (data) {
+      const total = data.reduce((acc, inst) => acc + Number(inst.amount || 0), 0);
+      setMonthlyTotal(total);
+    }
   };
 
   useEffect(() => {
     fetchInstallments(selectedMonth);
   }, [selectedMonth]);
 
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+
+    try {
+      if (selectedItem.accounts.account_type === "VARIAVEL") {
+        const { error } = await supabase
+          .from("installments")
+          .update({
+            amount: parseFloat(selectedItem.amount),
+            status: selectedItem.status,
+            paid_at:
+              selectedItem.status === "Pago"
+                ? new Date().toISOString()
+                : null,
+          })
+          .eq("id", selectedItem.id);
+
+        if (error) throw error;
+      } else if (selectedItem.accounts.account_type === "FIXA") {
+        const { error } = await supabase
+          .from("installments")
+          .update({
+            amount: parseFloat(selectedItem.amount),
+            status: selectedItem.status,
+            paid_at:
+              selectedItem.status === "Pago"
+                ? new Date().toISOString()
+                : null,
+          })
+          .eq("id", selectedItem.id);
+
+        if (error) throw error;
+
+        const { error: accountError } = await supabase
+          .from("accounts")
+          .update({
+            total_value: parseFloat(selectedItem.amount),
+          })
+          .eq("id", selectedItem.accounts.id);
+
+        if (accountError) throw accountError;
+      }
+
+      setInstallments((prev) =>
+        prev.map((i) => (i.id === selectedItem.id ? { ...selectedItem } : i))
+      );
+
+      handleCloseModal();
+    } catch (err) {
+      alert("Erro ao salvar: " + err.message);
+    }
+  };
+
   return (
     <div className="payment">
-      <Sidebar onLogout={handleLogout} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
+      <Sidebar
+        onLogout={handleLogout}
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <main className="main">
-        <Topbar onLogout={handleLogout} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+        <Topbar
+          onLogout={handleLogout}
+          onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+        />
 
-        <MonthSelector selectedMonth={selectedMonth} onChange={setSelectedMonth} />
+        <div className="month-header">
+          <MonthSelector
+            selectedMonth={selectedMonth}
+            onChange={setSelectedMonth}
+          />
+
+          <div className="monthly-total">
+            <strong>Total do mês:</strong> R$ {monthlyTotal.toFixed(2)}
+          </div>
+        </div>
 
         <div className="list">
           <h2>Pagamentos do Mês:</h2>
@@ -112,18 +182,14 @@ export default function Info_Payment() {
                   <br />
                   <em>{item.accounts?.description}</em>
                   <br />
-                  {item.type === "VARIAVEL" ? (
+                  {item.accounts?.account_type === "VARIAVEL" ? (
                     <>
-                      Parcela: {item.parcel_number} / {item.accounts?.parcel_count}
+                      Parcela: {item.parcel_number} /{" "}
+                      {item.accounts?.parcel_count}
                       <br />
                       Valor: R$ {Number(item.amount).toFixed(2)}
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
-                      <br />
-                      Status:{" "}
-                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
-                        {item.status}
-                      </span>
                     </>
                   ) : (
                     <>
@@ -132,18 +198,25 @@ export default function Info_Payment() {
                       Valor: R$ {Number(item.amount).toFixed(2)}
                       <br />
                       Vencimento: {formatDateBR(item.due_date)}
-                      <br />
-                      Status:{" "}
-                      <span className={item.status === "Pago" ? "status-paid" : "status-pending"}>
-                        {item.status}
-                      </span>
                     </>
                   )}
-
+                  <br />
+                  Status:{" "}
+                  <span
+                    className={
+                      item.status === "Pago"
+                        ? "status-paid"
+                        : "status-pending"
+                    }
+                  >
+                    {item.status}
+                  </span>
                   <div className="card-buttons">
                     <button onClick={() => handleEdit(item)}>Editar</button>
                     {item.status !== "Pago" && (
-                      <button onClick={() => handleMarkPaid(item)}>Informar Pagamento</button>
+                      <button onClick={() => handleMarkPaid(item)}>
+                        Informar Pagamento
+                      </button>
                     )}
                   </div>
                 </li>
@@ -156,47 +229,17 @@ export default function Info_Payment() {
           <div className="modal-overlay">
             <div className="modal-content">
               <h3>Editar Conta</h3>
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (selectedItem.type === "VARIAVEL") {
-                    const { error } = await supabase
-                      .from("installments")
-                      .update({ amount: selectedItem.amount, status: selectedItem.status })
-                      .eq("id", selectedItem.id);
-
-                    if (error) {
-                      alert("Erro ao atualizar: " + error.message);
-                    } else {
-                      setInstallments((prev) =>
-                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                      );
-                      handleCloseModal();
-                    }
-                  } else {
-                    const { error } = await supabase
-                      .from("accounts")
-                      .update({ total_value: selectedItem.amount })
-                      .eq("id", selectedItem.id);
-
-                    if (error) {
-                      alert("Erro ao atualizar conta fixa: " + error.message);
-                    } else {
-                      setInstallments((prev) =>
-                        prev.map((i) => (i.id === selectedItem.id ? selectedItem : i))
-                      );
-                      handleCloseModal();
-                    }
-                  }
-                }}
-              >
+              <form onSubmit={onSubmit}>
                 <label>
                   Valor:
                   <input
                     type="number"
                     value={selectedItem.amount}
                     onChange={(e) =>
-                      setSelectedItem({ ...selectedItem, amount: e.target.value })
+                      setSelectedItem({
+                        ...selectedItem,
+                        amount: e.target.value,
+                      })
                     }
                   />
                 </label>
@@ -206,9 +249,11 @@ export default function Info_Payment() {
                   <select
                     value={selectedItem.status}
                     onChange={(e) =>
-                      setSelectedItem({ ...selectedItem, status: e.target.value })
+                      setSelectedItem({
+                        ...selectedItem,
+                        status: e.target.value,
+                      })
                     }
-                    disabled={selectedItem.type === "FIXA"}
                   >
                     <option value="Em Aberto">A Pagar</option>
                     <option value="Pago">Pago</option>
@@ -220,19 +265,27 @@ export default function Info_Payment() {
                   <button
                     type="button"
                     onClick={async () => {
-                      if (window.confirm("Tem certeza que deseja excluir essa conta?")) {
+                      if (
+                        window.confirm(
+                          "Tem certeza que deseja excluir essa conta?"
+                        )
+                      ) {
                         let error;
-                        if (selectedItem.type === "VARIAVEL") {
+                        if (
+                          selectedItem.accounts.account_type === "VARIAVEL"
+                        ) {
                           const { error: err } = await supabase
                             .from("installments")
                             .delete()
                             .eq("id", selectedItem.id);
                           error = err;
-                        } else if (selectedItem.type === "FIXA") {
+                        } else if (
+                          selectedItem.accounts.account_type === "FIXA"
+                        ) {
                           const { error: err } = await supabase
                             .from("accounts")
                             .delete()
-                            .eq("id", selectedItem.id);
+                            .eq("id", selectedItem.accounts.id);
                           error = err;
                         }
 
