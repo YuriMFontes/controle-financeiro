@@ -15,7 +15,7 @@ export default function Sidebar({ onLogout, open, onClose, fullName }) {
   return (
     <aside className={`sidebar ${open ? "open" : ""}`}>
       <div className="sidebar-header">
-        <h2 className="logo">Controle-Financeiro</h2>
+        <h2 className="logo">Evolua</h2>
         <button className="close-btn" onClick={onClose}>
           ❌
         </button>
